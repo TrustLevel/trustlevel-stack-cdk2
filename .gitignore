@@ -1,0 +1,19 @@
+*.js
+!jest.config.js
+!webpack.js
+**/dist/*.d.ts
+!src/*.d.ts
+node_modules
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+
+**/dist
+!**/api-core/dist
+
+.DS_Store
+
+**/coverage
+
+**/__pycache__
