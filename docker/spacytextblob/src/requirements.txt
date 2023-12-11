@@ -1,0 +1,4 @@
+flask
+spacy
+spacytextblob
+gunicorn
