@@ -20,6 +20,16 @@ Considering Prerequisites, you should be able to execute deployment scripts now:
 yarn cdk deploy <YOU_NAME_IT_Stack>-dev -c stage=dev
 ```
 
+## Trustlevel api key deployment
+
+```bash
+# Make sure to use the correct profile
+export AWS_PROFILE=trustlevel
+
+# Deploy the secret (prd stage in this example)
+aws secretsmanager create-secret --name trustlevel-api-key-prd --secret-string "${TRUSTLEVEL_API_KEY}" --region eu-west-1
+```
+
 ## Useful commands
 
 * `yarn build`   compile typescript to js

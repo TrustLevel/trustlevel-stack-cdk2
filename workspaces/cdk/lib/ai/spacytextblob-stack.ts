@@ -5,13 +5,18 @@ import {
   FargateTaskDefinition,
   ContainerImage,
   FargateService,
+  Protocol,
 } from 'aws-cdk-lib/aws-ecs';
-import {IVpc} from 'aws-cdk-lib/aws-ec2';
+import {Port} from 'aws-cdk-lib/aws-ec2';
+import {PrivateDnsNamespace} from 'aws-cdk-lib/aws-servicediscovery';
 import {StagedStackProps} from '../../bin/stagedStackProps';
 import {Stage} from '../../bin/stages';
+import {TrustlevelPostFunction} from '../trustlevel/lambda/post-stack';
+import {AiVpc} from '../vpcs/ai-vpc-stack';
 
 interface SpacytextblobStackProps extends StagedStackProps {
-  vpc: IVpc;
+  aiVpc: AiVpc;
+  trustlevelPostFn: TrustlevelPostFunction;
 }
 
 export class SpacytextblobStack extends Stack {
@@ -23,7 +28,7 @@ export class SpacytextblobStack extends Stack {
       this,
       `${Stage[props!.stage]}-SpacytextblobCluster`,
       {
-        vpc: props.vpc,
+        vpc: props.aiVpc.vpc,
       }
     );
 
@@ -52,18 +57,39 @@ export class SpacytextblobStack extends Stack {
       }
     );
 
-    // Create Fargate Service
+    container.addPortMappings({
+      containerPort: 5000, // The port your application is listening on
+      protocol: Protocol.TCP,
+    });
+
+    // Create Private DNS Namespace for Service Discovery
+    const dnsNamespace = new PrivateDnsNamespace(
+      this,
+      `${Stage[props!.stage]}-SpacytextblobNamespace`,
+      {
+        name: 'spacytextblob.local',
+        vpc: props.aiVpc.vpc,
+      }
+    );
+
+    // Create Fargate Service with Cloud Map Service Discovery
     const service = new FargateService(
       this,
       `${Stage[props!.stage]}-SpacytextblobService`,
       {
         cluster,
         taskDefinition,
+        securityGroups: [props.aiVpc.spacytextblobSecurityGroup],
+        cloudMapOptions: {
+          name: `spacytextblob-service-${Stage[props!.stage]}`, // DNS name for the service in the private DNS namespace
+          cloudMapNamespace: dnsNamespace,
+        },
       }
     );
 
-    // Configure the service to not be publicly accessible
-    // Note: Specific configurations depend on your network setup and security requirements
-    //service.connections.allowFrom(lambdaFunction, ec2.Port.tcp(80)); // Allow only Lambda function
+    service.connections.allowFrom(
+      props.trustlevelPostFn.function,
+      Port.tcp(5000)
+    ); // Allow only Lambda function
   }
 }

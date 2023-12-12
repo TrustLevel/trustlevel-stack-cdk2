@@ -29,6 +29,7 @@
   "dependencies": {
     "@trustlevel/api-core": "0.1.0",
     "aws-sdk": "^2.1124.0",
-    "joi": "^17.6.0"
+    "joi": "^17.6.0",
+    "axios": "^1.2.6"
   }
 }

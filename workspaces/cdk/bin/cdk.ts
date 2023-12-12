@@ -5,6 +5,8 @@ import {exit} from 'process';
 import {stageAppendix, stageByParam} from './stages';
 import {AiVpcStack} from '../lib/vpcs/ai-vpc-stack';
 import {SpacytextblobStack} from '../lib/ai/spacytextblob-stack';
+import {trustlevelApi} from '../lib/trustlevel/trustlevel';
+import {StagedStackProps} from './stagedStackProps';
 
 const app = new cdk.App();
 
@@ -23,13 +25,20 @@ const globalConfig = {
   env: {account: '086829801639', region: 'eu-west-1'},
 };
 
-const aiVpcStack = new AiVpcStack(app, `AiVpcStack${stageAppendix(stage)}`, {
+const stagedProps: StagedStackProps = {
   ...globalConfig,
   stage,
+};
+
+const aiVpcStack = new AiVpcStack(app, `AiVpcStack${stageAppendix(stage)}`, {
+  ...stagedProps,
 });
 
+// yarn cdk deploy TrustlevelGatewayStack-dev -c stage=dev
+const trustlevelFn = trustlevelApi(app, stagedProps, aiVpcStack.aiVpc);
+
 new SpacytextblobStack(app, `SpacytextblobStack${stageAppendix(stage)}`, {
-  ...globalConfig,
-  stage,
-  vpc: aiVpcStack.vpc,
+  ...stagedProps,
+  aiVpc: aiVpcStack.aiVpc,
+  trustlevelPostFn: trustlevelFn,
 });
