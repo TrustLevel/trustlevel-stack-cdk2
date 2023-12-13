@@ -18,7 +18,7 @@ RUN python -m spacy download en_core_web_sm
 # Add non-root user for security
 RUN useradd -m myuser
 
-# Create logs directory and set permissions
+# Create logs directory and set permissions (local run only)
 RUN mkdir /usr/src/app/logs && chown -R myuser:myuser /usr/src/app/logs
 
 # Switch to non-root user

@@ -1,5 +1,5 @@
 import {App, Stack} from 'aws-cdk-lib';
-import {Vpc, IVpc, SecurityGroup, Port} from 'aws-cdk-lib/aws-ec2';
+import {Vpc, IVpc, SecurityGroup, Port, Peer} from 'aws-cdk-lib/aws-ec2';
 import {StagedStackProps} from '../../bin/stagedStackProps';
 import {Stage} from '../../bin/stages';
 
@@ -16,7 +16,7 @@ export class AiVpcStack extends Stack {
     super(scope, id, props);
 
     const vpc = new Vpc(this, `${Stage[props!.stage]}-AiVpc`, {
-      // VPC configuration (e.g., CIDR, subnets, etc.)
+      maxAzs: 3, // Define the maximum number of Availability Zones to use
     });
 
     const spacytextblobSecurityGroup = new SecurityGroup(
@@ -24,8 +24,14 @@ export class AiVpcStack extends Stack {
       `${Stage[props!.stage]}-SpacytextblobSecurityGroup`,
       {
         vpc,
-        // Define additional security group settings if needed
+        allowAllOutbound: false,
       }
+    );
+
+    spacytextblobSecurityGroup.addEgressRule(
+      Peer.anyIpv4(),
+      Port.tcp(443),
+      'Allow outbound HTTPS traffic to ECR'
     );
 
     const lambdaSecurityGroup = new SecurityGroup(
@@ -33,6 +39,7 @@ export class AiVpcStack extends Stack {
       `${Stage[props!.stage]}-TrustlevelPostLambdaSecurityGroup`,
       {
         vpc,
+        allowAllOutbound: false,
       }
     );
 
@@ -40,6 +47,12 @@ export class AiVpcStack extends Stack {
       spacytextblobSecurityGroup,
       Port.tcp(5000),
       'Allow Lambda to access Spacytextblob on port 5000'
+    );
+
+    spacytextblobSecurityGroup.addIngressRule(
+      lambdaSecurityGroup,
+      Port.tcp(5000),
+      'Allow inbound from Lambda'
     );
 
     this.aiVpc = {

@@ -21,7 +21,7 @@ class SpacyTextBlobClient {
   public async analyzeText(text: string): Promise<SpacyTextBlobResponse> {
     try {
       const response = await this.client.post('/analyze', {text});
-      return response.data;
+      return response.data as SpacyTextBlobResponse;
     } catch (error) {
       // Handle error (e.g., log it, throw custom error, etc.)
       console.error('Error calling SpacyTextBlob:', error);

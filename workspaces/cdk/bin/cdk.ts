@@ -30,15 +30,16 @@ const stagedProps: StagedStackProps = {
   stage,
 };
 
+// yarn cdk deploy AiVpcStack-dev -c stage=dev
 const aiVpcStack = new AiVpcStack(app, `AiVpcStack${stageAppendix(stage)}`, {
   ...stagedProps,
 });
 
 // yarn cdk deploy TrustlevelGatewayStack-dev -c stage=dev
-const trustlevelFn = trustlevelApi(app, stagedProps, aiVpcStack.aiVpc);
+trustlevelApi(app, stagedProps, aiVpcStack.aiVpc);
 
+// yarn cdk deploy SpacytextblobStack-dev -c stage=dev
 new SpacytextblobStack(app, `SpacytextblobStack${stageAppendix(stage)}`, {
   ...stagedProps,
   aiVpc: aiVpcStack.aiVpc,
-  trustlevelPostFn: trustlevelFn,
 });

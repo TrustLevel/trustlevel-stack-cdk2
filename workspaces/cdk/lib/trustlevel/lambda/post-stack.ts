@@ -29,7 +29,7 @@ export class TrustlevelPostStack extends Stack {
     const lambdaFunction = new Function(this, functionName, {
       functionName,
       handler: 'index.handler',
-      timeout: Duration.seconds(30),
+      timeout: Duration.seconds(120),
       runtime: Runtime.NODEJS_18_X,
       currentVersionOptions: {removalPolicy: RemovalPolicy.RETAIN},
       code: AssetCode.fromAsset(
@@ -47,7 +47,7 @@ export class TrustlevelPostStack extends Stack {
         ALLOWED_ORIGINS: JSON.stringify(allowedOrigins),
         SPACYTEXTBLOB_URL: `http://spacytextblob-service-${
           Stage[props!.stage]
-        }.spacytextblob.local`, // Use the actual Service Discovery DNS name
+        }.spacytextblob.local:5000`, // Use the actual Service Discovery DNS name
       },
     });
 

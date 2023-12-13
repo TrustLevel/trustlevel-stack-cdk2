@@ -39,9 +39,11 @@ app.logger.info('SpacyTextBlob startup')
 # Load SpaCy and add spacytextblob to the pipeline
 nlp = spacy.load("en_core_web_sm")
 nlp.add_pipe('spacytextblob')
+app.logger.info('Nlp setup complete')
 
 @app.route('/analyze', methods=['POST'])
 def analyze_text():
+    app.logger.info('Received request to analyze')
     data = request.json
     text = data.get('text')
     if not text:
