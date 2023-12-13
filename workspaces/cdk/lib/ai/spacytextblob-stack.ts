@@ -94,7 +94,7 @@ export class SpacytextblobStack extends Stack {
       this,
       `${Stage[props!.stage]}-SpacytextblobNamespace`,
       {
-        name: 'spacytextblob.local',
+        name: `spacytextblob-${Stage[props!.stage]}.local`,
         vpc: props.aiVpc.vpc,
       }
     );

@@ -47,7 +47,7 @@ export class TrustlevelPostStack extends Stack {
         ALLOWED_ORIGINS: JSON.stringify(allowedOrigins),
         SPACYTEXTBLOB_URL: `http://spacytextblob-service-${
           Stage[props!.stage]
-        }.spacytextblob.local:5000`, // Use the actual Service Discovery DNS name
+        }.spacytextblob-${Stage[props!.stage]}.local:5000`, // Use the actual Service Discovery DNS name
       },
     });
 

@@ -1,5 +1,5 @@
 import {App, Stack} from 'aws-cdk-lib';
-import {Vpc, IVpc, SecurityGroup, Port, Peer} from 'aws-cdk-lib/aws-ec2';
+import {IVpc, SecurityGroup, Port, Peer, Vpc} from 'aws-cdk-lib/aws-ec2';
 import {StagedStackProps} from '../../bin/stagedStackProps';
 import {Stage} from '../../bin/stages';
 
@@ -15,15 +15,16 @@ export class AiVpcStack extends Stack {
   constructor(scope: App, id: string, props?: StagedStackProps) {
     super(scope, id, props);
 
-    const vpc = new Vpc(this, `${Stage[props!.stage]}-AiVpc`, {
-      maxAzs: 3, // Define the maximum number of Availability Zones to use
+    const sharedVpcId = 'vpc-0945f749192a4f18d';
+    const existingVpc = Vpc.fromLookup(this, 'ImportedVpc', {
+      vpcId: sharedVpcId,
     });
 
     const spacytextblobSecurityGroup = new SecurityGroup(
       this,
       `${Stage[props!.stage]}-SpacytextblobSecurityGroup`,
       {
-        vpc,
+        vpc: existingVpc,
         allowAllOutbound: false,
       }
     );
@@ -38,7 +39,7 @@ export class AiVpcStack extends Stack {
       this,
       `${Stage[props!.stage]}-TrustlevelPostLambdaSecurityGroup`,
       {
-        vpc,
+        vpc: existingVpc,
         allowAllOutbound: false,
       }
     );
@@ -56,7 +57,7 @@ export class AiVpcStack extends Stack {
     );
 
     this.aiVpc = {
-      vpc,
+      vpc: existingVpc,
       spacytextblobSecurityGroup,
       lambdaSecurityGroup,
     };
