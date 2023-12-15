@@ -1,23 +1,28 @@
-# Use an official Ubuntu as a parent image
 FROM ubuntu:20.04
 
 # Set the working directory
 WORKDIR /app
 
-# Install necessary packages
+# Set a non-interactive frontend for apt-get
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install necessary packages including AWS CLI
 RUN apt-get update && \
-    apt-get install -y wget && \
-    apt-get install -y sudo && \
+    apt-get install -y wget awscli && \
     apt-get clean
 
-# Download the SNET Daemon binary
-RUN wget "https://drive.google.com/u/0/uc?id=1jbme-TD_HVOlyvkdcT_B0iOOzUpM9c3r&export=download" -O snetd
+# Reset the frontend (optional)
+ENV DEBIAN_FRONTEND=dialog
 
-# Change the permissions of the file
-RUN chmod +x snetd
+# Copy startup script
+COPY start.sh /app/
+RUN chmod +x /app/start.sh
 
-# Set the command to run SNET Daemon
-CMD ["./snetd", "-c", "snetd.config.json"]
+# Download the SNET Daemon binary and change permissions
+RUN wget "https://drive.google.com/u/0/uc?id=1jbme-TD_HVOlyvkdcT_B0iOOzUpM9c3r&export=download" -O snetd && \
+    chmod +x snetd
 
-# Expose the port that SNETD will run on
+# Set the command to run the startup script
+CMD ["./start.sh"]
+
 EXPOSE 7001
