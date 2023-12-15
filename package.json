@@ -4,7 +4,12 @@
     "workspaces/**"
   ],
   "scripts": {
-    "fix": "gts fix"
+    "fix": "gts fix",
+    "//CORE": "//////////",
+    "clean": "rm -rf dist node_modules",
+    "build:api-core": "cd workspaces/apis/api-core/ && yarn run prepare",
+    "//TRUSTLEVEL-API": "///////////////////////////////",
+    "build:trustlevel-api": "cd workspaces/apis/trustlevel-api/ && yarn run prepare && yarn run bundle"
   },
   "devDependencies": {
     "@types/node": "^14.11.2",
