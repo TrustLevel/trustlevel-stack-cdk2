@@ -1,0 +1,27 @@
+{
+    "blockchain_enabled": true,
+    "blockchain_network_selected": "main",
+    "daemon_end_point": "0.0.0.0:7001",
+    "daemon_group_name": "default_groups",
+    "ipfs_end_point": "http://ipfs.singularitynet.io:80",
+    "organization_id": "trustlevel-org-id",
+    "service_id": "trustlevel-cqs-service",
+    "passthrough_enabled": true,
+    "passthrough_endpoint": "http://trustlevel-grpc-service-prd.trustlevel-grpc-prd.local:7077",
+    "payment_channel_storage_server": {
+      "client_port": 2379,
+      "cluster": "storage-1=http://127.0.0.1:2380",
+      "data_dir": "data.etcd",
+      "enabled": true,
+      "host": "127.0.0.1",
+      "id": "storage-1",
+      "log_level": "info",
+      "peer_port": 2380,
+      "scheme": "http",
+      "startup_timeout": "1m",
+      "token": "your-unique-token"
+    },  
+    "metering_enabled": false,
+    "log": {"level": "debug", "output": {"type": "stdout"}}
+  }
+  

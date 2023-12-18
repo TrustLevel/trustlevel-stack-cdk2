@@ -56,6 +56,7 @@ new SpacytextblobStack(app, `SpacytextblobStack${stageAppendix(stage)}`, {
 });
 
 // yarn cdk deploy SnetVpcStack-dev -c stage=dev
+// yarn cdk deploy SnetVpcStack-prd -c stage=prd
 const snetVpcStack = new SnetVpcStack(
   app,
   `SnetVpcStack${stageAppendix(stage)}`,
@@ -65,6 +66,7 @@ const snetVpcStack = new SnetVpcStack(
 );
 
 // yarn cdk deploy TrustlevelGrpcStack-dev -c stage=dev
+// yarn cdk deploy TrustlevelGrpcStack-prd -c stage=prd
 new TrustlevelGrpcStack(app, `TrustlevelGrpcStack${stageAppendix(stage)}`, {
   ...stagedProps,
   snetVpc: snetVpcStack.snetVpc,
