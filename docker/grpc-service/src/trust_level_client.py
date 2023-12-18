@@ -22,7 +22,7 @@ def calculate_trust_level(input_string):
         response.raise_for_status()  # Raises an error for bad HTTP status codes
 
         # Extract the desired field from the JSON response
-        return response.json().get('desired_field', 0)  # Replace 'desired_field' with the actual field name
+        return response.json().get('trustlevel', 0)
     except requests.RequestException as e:
         print(f"An error occurred: {e}")
         return 0

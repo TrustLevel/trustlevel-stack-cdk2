@@ -35,3 +35,9 @@ AWS_PROFILE=trustlevel aws s3 cp ./configs/dev/snetd.config.json s3://dev-snetd-
 ## Create org
 
  c.f.: https://github.com/TrustLevel/snet-poc?tab=readme-ov-file#identity-and-org-setup
+
+## Restart
+
+```bash
+AWS_PROFILE=trustlevel aws ecs update-service --cluster dev-SnetdCluster --service dev-SnetdFargateService --force-new-deployment --region eu-west-1 
+```

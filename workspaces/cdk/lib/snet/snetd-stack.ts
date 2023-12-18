@@ -21,6 +21,9 @@ import {
 import {Bucket} from 'aws-cdk-lib/aws-s3';
 import {IVpc} from 'aws-cdk-lib/aws-ec2';
 import {SnetVpc} from '../vpcs/snet-vpc-stack';
+import {HostedZone, ARecord, RecordTarget} from 'aws-cdk-lib/aws-route53';
+import {LoadBalancerTarget} from 'aws-cdk-lib/aws-route53-targets';
+import {NetworkLoadBalancer} from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 interface SnetdStackProps extends StagedStackProps {
   snetVpc: SnetVpc;
@@ -42,11 +45,15 @@ export class SnetdStack extends Stack {
       logGroup
     );
     this.addContainerToTaskDefinition(taskDefinition, stagePrefix, logGroup);
+
+    const nlb = this.createNetworkLoadBalancer(props.snetVpc.vpc, stagePrefix);
+    this.associateDomainWithNLB(nlb, stagePrefix, props.stage);
     this.createFargateService(
       ecsCluster,
       taskDefinition,
       stagePrefix,
-      props.snetVpc
+      props.snetVpc,
+      nlb
     );
   }
 
@@ -161,43 +168,72 @@ export class SnetdStack extends Stack {
     });
   }
 
+  private createNetworkLoadBalancer(
+    vpc: IVpc,
+    stagePrefix: string
+  ): NetworkLoadBalancer {
+    const nlb = new NetworkLoadBalancer(this, `${stagePrefix}-SnetdNLB`, {
+      vpc,
+      internetFacing: true,
+      loadBalancerName: `${stagePrefix}-SnetdNLB`,
+    });
+
+    return nlb;
+  }
+
   private createFargateService(
     cluster: Cluster,
     taskDefinition: FargateTaskDefinition,
     stagePrefix: string,
-    snetVpc: SnetVpc
+    snetVpc: SnetVpc,
+    nlb: NetworkLoadBalancer
   ): void {
-    new FargateService(this, `${stagePrefix}-SnetdFargateService`, {
-      cluster,
-      taskDefinition,
-      desiredCount: 1,
-      assignPublicIp: true, // Assign public IP for public access
-      vpcSubnets: {subnets: snetVpc.vpc.publicSubnets},
-      securityGroups: [snetVpc.snetdSecurityGroup],
-    });
+    const service = new FargateService(
+      this,
+      `${stagePrefix}-SnetdFargateService`,
+      {
+        cluster,
+        serviceName: `${stagePrefix}-SnetdFargateService`,
+        taskDefinition,
+        desiredCount: 1,
+        assignPublicIp: true, // Assign public IP for public access
+        vpcSubnets: {subnets: snetVpc.vpc.publicSubnets},
+        securityGroups: [snetVpc.snetdSecurityGroup],
+      }
+    );
+
+    // Attach the Fargate service to the NLB listener
+    nlb
+      .addListener(`${stagePrefix}-SnetdListener`, {
+        port: 7001,
+      })
+      .addTargets(`${stagePrefix}-SnetdTargets`, {
+        port: 7001,
+        targets: [
+          service.loadBalancerTarget({
+            containerName: `${stagePrefix}-SnetdContainer`,
+            containerPort: 7001,
+          }),
+        ],
+      });
   }
 
-  // private createFargateService(
-  //   cluster: Cluster,
-  //   taskDefinition: FargateTaskDefinition,
-  //   stagePrefix: string,
-  //   snetVpc: SnetVpc
-  // ): void {
-  //   // Create a Fargate Service with Application Load Balancer
-  //   const fargateService = new ApplicationLoadBalancedFargateService(
-  //     this,
-  //     `${stagePrefix}-SnetdFargateService`,
-  //     {
-  //       cluster,
-  //       taskDefinition,
-  //       publicLoadBalancer: true,
-  //     }
-  //   );
+  private associateDomainWithNLB(
+    nlb: NetworkLoadBalancer,
+    stagePrefix: string,
+    stage: Stage
+  ): void {
+    const domainName = 'trust-level.com'; // Replace with your domain name
+    const hostedZone = HostedZone.fromLookup(this, 'TrustlevelHostedZone', {
+      domainName: domainName,
+    });
 
-  //   // Open port 7001 for the Load Balancer
-  //   fargateService.service.connections.allowFromAnyIpv4(Port.tcp(7001));
-  //   fargateService.service.connections.addSecurityGroup(
-  //     snetVpc.snetdSecurityGroup
-  //   );
-  // }
+    const recordName = stage === Stage.dev ? `dev.${domainName}` : domainName;
+
+    new ARecord(this, `${stagePrefix}-NLBAliasRecord`, {
+      zone: hostedZone,
+      recordName: recordName,
+      target: RecordTarget.fromAlias(new LoadBalancerTarget(nlb)),
+    });
+  }
 }
