@@ -1,0 +1,31 @@
+{
+    "version": 1,
+    "display_name": "trustlevel-aws-service-test-4",
+    "encoding": "proto",
+    "service_type": "grpc",
+    "model_ipfs_hash": "QmZQ4APBbVFxBRZt4DKn3oXD1cjwxFbDC1eNgtadPLqQNB",
+    "mpe_address": "0x6245F856EFFBDB3ED6a3c64385b27A78B42F65e1",
+    "groups": [
+        {
+            "group_name": "default_groups",
+            "endpoints": [
+                "http://dev.trust-level.com:7001"
+            ],
+            "pricing": [
+                {
+                    "price_model": "fixed_price",
+                    "price_in_cogs": 50000000,
+                    "default": true
+                }
+            ],
+            "group_id": "1sYK43pGZOn5XyIJO8eu/TmcQzJ6q8RxfieNLGwI2Tc="
+        }
+    ],
+    "assets": {},
+    "media": [],
+    "tags": [],
+    "service_description": {
+        "description": "Description of my Service.",
+        "url": "https://www.trustlevel.io/"
+    }
+}

@@ -8,6 +8,9 @@ import {SpacytextblobStack} from '../lib/ai/spacytextblob-stack';
 import {trustlevelApi} from '../lib/trustlevel/trustlevel';
 import {StagedStackProps} from './stagedStackProps';
 import {SharedVpc} from '../lib/vpcs/shared-vpc-stack';
+import {SnetdStack} from '../lib/snet/snetd-stack';
+import {SnetVpcStack} from '../lib/vpcs/snet-vpc-stack';
+import {TrustlevelGrpcStack} from '../lib/snet/trustlevel-grpc-stack';
 
 const app = new cdk.App();
 
@@ -50,4 +53,28 @@ trustlevelApi(app, stagedProps, aiVpcStack.aiVpc);
 new SpacytextblobStack(app, `SpacytextblobStack${stageAppendix(stage)}`, {
   ...stagedProps,
   aiVpc: aiVpcStack.aiVpc,
+});
+
+// yarn cdk deploy SnetVpcStack-dev -c stage=dev
+// yarn cdk deploy SnetVpcStack-prd -c stage=prd
+const snetVpcStack = new SnetVpcStack(
+  app,
+  `SnetVpcStack${stageAppendix(stage)}`,
+  {
+    ...stagedProps,
+  }
+);
+
+// yarn cdk deploy TrustlevelGrpcStack-dev -c stage=dev
+// yarn cdk deploy TrustlevelGrpcStack-prd -c stage=prd
+new TrustlevelGrpcStack(app, `TrustlevelGrpcStack${stageAppendix(stage)}`, {
+  ...stagedProps,
+  snetVpc: snetVpcStack.snetVpc,
+});
+
+// yarn cdk deploy SnetdStack-dev -c stage=dev
+// yarn cdk deploy SnetdStack-prd -c stage=prd
+new SnetdStack(app, `SnetdStack${stageAppendix(stage)}`, {
+  ...stagedProps,
+  snetVpc: snetVpcStack.snetVpc,
 });

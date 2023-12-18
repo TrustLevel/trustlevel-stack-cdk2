@@ -22,7 +22,7 @@ export class Service {
     );
 
     return {
-      trustlevel: spacyTextBlobResponse.polarity,
+      trustlevel: spacyTextBlobResponse.subjectivity,
     };
   }
 }

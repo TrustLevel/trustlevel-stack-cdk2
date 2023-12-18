@@ -1,0 +1,30 @@
+{
+    "org_name": "trustlevel-aws-test",
+    "org_id": "trustlevel-aws-test",
+    "org_type": "individual",
+    "description": {
+        "description": "Trustlevel long description",
+        "short_description": "Trustlevel short description",
+        "url": "https://www.trustlevel.io/"
+    },
+    "assets": {},
+    "contacts": [],
+    "groups": [
+        {
+            "group_name": "default_groups",
+            "group_id": "1sYK43pGZOn5XyIJO8eu/TmcQzJ6q8RxfieNLGwI2Tc=",
+            "payment": {
+                "payment_address": "0x007692276fe8d9941FF9bB4f2CfE0047dD9EB406",
+                "payment_expiration_threshold": 100,
+                "payment_channel_storage_type": "etcd",
+                "payment_channel_storage_client": {
+                    "connection_timeout": "100s",
+                    "request_timeout": "5s",
+                    "endpoints": [
+                        "http://127.0.0.1:2379"
+                    ]
+                }
+            }
+        }
+    ]
+}
