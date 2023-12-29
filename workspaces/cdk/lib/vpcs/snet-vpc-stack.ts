@@ -5,7 +5,7 @@ import {Stage} from '../../bin/stages';
 
 export interface SnetVpc {
   vpc: IVpc;
-  snetdSecurityGroup: SecurityGroup;
+  // snetdSecurityGroup: SecurityGroup;
   grpcSecurityGroup: SecurityGroup;
 }
 
@@ -20,20 +20,20 @@ export class SnetVpcStack extends Stack {
       vpcId: sharedVpcId,
     });
 
-    const snetdSecurityGroup = new SecurityGroup(
-      this,
-      `${Stage[props!.stage]}-SnetdSecurityGroup`,
-      {
-        vpc: existingVpc,
-        allowAllOutbound: true,
-      }
-    );
+    // const snetdSecurityGroup = new SecurityGroup(
+    //   this,
+    //   `${Stage[props!.stage]}-SnetdSecurityGroup`,
+    //   {
+    //     vpc: existingVpc,
+    //     allowAllOutbound: true,
+    //   }
+    // );
 
-    snetdSecurityGroup.addIngressRule(
-      Peer.anyIpv4(),
-      Port.tcp(7001),
-      'Allow public access on port 7001'
-    );
+    // snetdSecurityGroup.addIngressRule(
+    //   Peer.anyIpv4(),
+    //   Port.tcp(7001),
+    //   'Allow public access on port 7001'
+    // );
 
     const grpcSecurityGroup = new SecurityGroup(
       this,
@@ -60,7 +60,7 @@ export class SnetVpcStack extends Stack {
 
     this.snetVpc = {
       vpc: existingVpc,
-      snetdSecurityGroup,
+      // snetdSecurityGroup,
       grpcSecurityGroup,
     };
   }
