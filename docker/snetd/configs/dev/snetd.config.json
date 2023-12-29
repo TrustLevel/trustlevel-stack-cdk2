@@ -5,7 +5,7 @@
     "daemon_group_name": "default_groups",
     "ipfs_end_point": "http://ipfs.singularitynet.io:80",
     "organization_id": "trustlevel-aws-test",
-    "service_id": "trustlevel-aws-service-test-4",
+    "service_id": "trustlevel-aws-service-test-5",
     "passthrough_enabled": true,
     "passthrough_endpoint": "http://trustlevel-grpc-service-dev.trustlevel-grpc-dev.local:7077",
     "payment_channel_storage_server": {
