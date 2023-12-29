@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "display_name": "trustlevel-aws-service-test-4",
+    "display_name": "trustlevel-aws-service-test-5",
     "encoding": "proto",
     "service_type": "grpc",
     "model_ipfs_hash": "QmZQ4APBbVFxBRZt4DKn3oXD1cjwxFbDC1eNgtadPLqQNB",
@@ -9,7 +9,7 @@
         {
             "group_name": "default_groups",
             "endpoints": [
-                "http://dev.trust-level.com:7001"
+                "https://dev.trust-level.com:443"
             ],
             "pricing": [
                 {
