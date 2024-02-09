@@ -32,6 +32,22 @@ yarn run fix
 Find deployment instructions here:
 [Cdk deployment](/workspaces/cdk/README.md)
 
+## AWS Credentials and 1Password
+If you want to use 1Password to securely use AWS Credentials on your local machine, follow the instructions [here](https://developer.1password.com/docs/cli/shell-plugins/aws/).
+
+```bash
+# add to ~/.aws/config to please AWS_PROFILE settings
+[profile trustlevel]
+region = eu-west-1
+
+# For temporary terminal sessions - add to ~/.zsrhc
+alias trustlevel="source ~/.config/op/plugins.sh" # activate 1Password aws plugin for current terminal session
+
+# For global terminal session add to ~/.zsrhc
+source ~/.config/op/plugins.sh
+```
+
+
 # Trustlevel Api
 
 Once the stack is deployt, you can call the trustlevel api as follows:
