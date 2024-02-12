@@ -11,6 +11,7 @@ import {SharedVpc} from '../lib/vpcs/shared-vpc-stack';
 import {SnetdStack} from '../lib/snet/snetd-stack';
 import {SnetVpcStack} from '../lib/vpcs/snet-vpc-stack';
 import {TrustlevelGrpcStack} from '../lib/snet/trustlevel-grpc-stack';
+import { BiasDetectStack } from '../lib/ai/biasdetect-stack';
 
 const app = new cdk.App();
 
@@ -51,6 +52,13 @@ trustlevelApi(app, stagedProps, aiVpcStack.aiVpc);
 // yarn cdk deploy SpacytextblobStack-dev -c stage=dev
 // yarn cdk deploy SpacytextblobStack-prd -c stage=prd
 new SpacytextblobStack(app, `SpacytextblobStack${stageAppendix(stage)}`, {
+  ...stagedProps,
+  aiVpc: aiVpcStack.aiVpc,
+});
+
+// yarn cdk deploy BiasDetectStack-dev -c stage=dev
+// yarn cdk deploy BiasDetectStack-prd -c stage=prd
+new BiasDetectStack(app, `BiasDetectStack${stageAppendix(stage)}`, {
   ...stagedProps,
   aiVpc: aiVpcStack.aiVpc,
 });
