@@ -1,6 +1,5 @@
-const jest = require('../../../jest.config.js');
+/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
-  name: 'trustlevel-post',
-  displayName: 'trustlevel-post',
-  ...jest,
+  preset: 'ts-jest',
+  testEnvironment: 'node',
 };
