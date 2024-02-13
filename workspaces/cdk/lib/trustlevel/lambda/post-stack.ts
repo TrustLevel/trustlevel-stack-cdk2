@@ -26,6 +26,8 @@ export class TrustlevelPostStack extends Stack {
 
     const functionName = `${Stage[props!.stage]}-trustlevel-post`;
 
+    const stage = Stage[props!.stage];
+
     const lambdaFunction = new Function(this, functionName, {
       functionName,
       handler: 'index.handler',
@@ -45,9 +47,8 @@ export class TrustlevelPostStack extends Stack {
       },
       environment: {
         ALLOWED_ORIGINS: JSON.stringify(allowedOrigins),
-        SPACYTEXTBLOB_URL: `http://spacytextblob-service-${
-          Stage[props!.stage]
-        }.spacytextblob-${Stage[props!.stage]}.local:5000`, // Use the actual Service Discovery DNS name
+        SPACYTEXTBLOB_URL: `http://spacytextblob-service-${stage}.spacytextblob-${stage}.local:5000`, // Use the actual Service Discovery DNS name
+        BIASD4DATA_URL: `http://biasDetect-service-${stage}.biasDetect-${stage}.local:5000`, // Use the actual Service Discovery DNS name
       },
     });
 
