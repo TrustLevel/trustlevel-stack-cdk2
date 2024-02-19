@@ -1,9 +1,7 @@
 // biasD4DataClient.ts
 import axios, {AxiosInstance} from 'axios';
 
-export type BiasD4DataResponse = BiasD4DataItem[]
-
-export interface BiasD4DataItem {
+export interface BiasD4DataResponse {
   label: string;
   score: number;
 }
