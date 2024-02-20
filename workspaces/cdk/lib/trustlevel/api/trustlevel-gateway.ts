@@ -35,7 +35,10 @@ export class TrustlevelGatewayStack extends cdk.Stack {
         stageName: 'v1',
         accessLogDestination: new apigateway.LogGroupLogDestination(apiLogGroup),
         accessLogFormat: apigateway.AccessLogFormat.jsonWithStandardFields(),
-        loggingLevel: apigateway.MethodLoggingLevel.INFO,
+
+        // generates log group named: 'API-Gateway-Execution-Logs_<api-id>/<stage>' if enabled
+        // disable on production
+        loggingLevel: props.stage == Stage.dev ? apigateway.MethodLoggingLevel.ERROR : apigateway.MethodLoggingLevel.OFF
       },
     });
 

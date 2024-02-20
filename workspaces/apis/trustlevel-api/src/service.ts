@@ -57,7 +57,7 @@ export class Service {
     };
 
     // in case custom weights are given the api returns metadata
-    // TODO: eventually this should be protected so only special users see the resulting scores
+    // TODO: eventually protect this, so only special users see the scores
     if (createDto.weights) {
       response = {
         trustlevel: response.trustlevel,
