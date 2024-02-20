@@ -7,19 +7,22 @@
     <title>Content Quality Score - Playground</title>
     <script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
     <style>
-        textarea { 
+        textarea {
             display: block;
             width: 100%;
             height: 5rem;
             margin: 0.75rem;
         }
+
         .container {
             margin: auto;
             width: 80%;
             padding: 2rem;
         }
+
         #result {
-            white-space: pre-wrap; /* Preserve formatting */
+            /* Preserve formatting */
+            white-space: pre-wrap;
             margin: 0.75rem;
             padding: 10px;
             background-color: #f0f0f0;
@@ -35,6 +38,9 @@
         <h1>Content Quality Score - Playground</h1>
         <div id="editor_holder" data-theme="html"></div>
         <textarea id="input" placeholder="Put your text you want to analyze here"></textarea>
+
+        <label for="customWeights">Use custom weights</label>
+        <input id="customWeights" type="checkbox" checked>
 
         <label for="endpoint">Choose environment:</label>
         <select id="endpoint">
@@ -91,32 +97,32 @@
             const dropdown = document.getElementById("endpoint");
             const endpoint = dropdown.options[dropdown.selectedIndex].value;
             const input = document.getElementById("input").value;
+            const customWeights = document.getElementById("customWeights");
 
             const resultElement = document.getElementById("result");
-            
 
-            // console.log(JSON.stringify(editor.getValue()));
-            // console.log(apiToken);
-            // console.log(endpoint);
-            // console.log(input);
+            const body = {
+                text: input
+            };
+            if (customWeights.checked) {
+                body.weights = editor.getValue();
+            }
 
-            fetch(endpoint, { 
-                method: 'POST', 
-                headers: { 
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {
                     'Content-Type': 'application/json',
                     'x-api-key': apiToken
-                }, 
-                body: JSON.stringify({
-                    text: input,
-                    weights: editor.getValue()
-                }),
+                },
+                body: JSON.stringify(body),
             })
                 .then(response => response.json())
                 .then(data => {
                     // format result
-                    resultElement.textContent = JSON.stringify(data, null, 8);
+                    const now = new Date().toLocaleString();
+                    resultElement.textContent = now + "\n" + JSON.stringify(data, null, 8);
                 })
-                .catch(error => resultElement.textContent = JSON.stringify(error, null, 4)); 
+                .catch(error => resultElement.textContent = JSON.stringify(error, null, 4));
         });
     </script>
 </body>
