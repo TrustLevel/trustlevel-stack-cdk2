@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Content Quality Score - Playground</title>
+    <script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
+    <style>
+        textarea { 
+            display: block;
+            width: 100%;
+            height: 5rem;
+            margin: 0.75rem;
+        }
+        .container {
+            margin: auto;
+            width: 80%;
+            padding: 2rem;
+        }
+        #result {
+            white-space: pre-wrap; /* Preserve formatting */
+            margin: 0.75rem;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Content Quality Score - Playground</h1>
+        <div id="editor_holder" data-theme="html"></div>
+        <textarea id="input" placeholder="Put your text you want to analyze here"></textarea>
+
+        <label for="endpoint">Choose environment:</label>
+        <select id="endpoint">
+            <option value="">Select an option</option>
+            <option value="https://2q2ffhhelb.execute-api.eu-west-1.amazonaws.com/v1/trustlevels">development</option>
+            <option value="https://powr86cuh9.execute-api.eu-west-1.amazonaws.com/v1/trustlevels">production</option>
+        </select>
+
+        <label for="token">API token:</label>
+        <input type="text" id="token" name="token" placeholder="API token">
+        <button id="submit">Analyze</button>
+        <div id="result">{}</div>
+    </div>
+    <script>
+        // Initialize the editor with a JSON schema
+        var editor = new JSONEditor(document.getElementById('editor_holder'), {
+            schema: {
+                type: "object",
+                title: "Weights",
+                properties: {
+                    polarity: {
+                        type: "number",
+                        maximum: 1.0,
+                        minimum: 0.0,
+                        default: 1.0,
+                        step: 0.01,
+                        format: "number",
+                    },
+                    subjectivity: {
+                        type: "number",
+                        maximum: 1.0,
+                        minimum: 0.0,
+                        default: 1.0,
+                        step: 0.01,
+                        format: "number",
+                    },
+                    bias: {
+                        type: "number",
+                        maximum: 1.0,
+                        minimum: 0.0,
+                        default: 1.0,
+                        step: 0.01,
+                        format: "number",
+                    },
+                }
+            },
+            required_by_default: true,
+        });
+
+        // Hook up the submit button to log to the console
+        document.getElementById('submit').addEventListener('click', function () {
+            // Get the value from the editor
+            const apiToken = document.getElementById("token").value;
+            const dropdown = document.getElementById("endpoint");
+            const endpoint = dropdown.options[dropdown.selectedIndex].value;
+            const input = document.getElementById("input").value;
+
+            const resultElement = document.getElementById("result");
+            
+
+            // console.log(JSON.stringify(editor.getValue()));
+            // console.log(apiToken);
+            // console.log(endpoint);
+            // console.log(input);
+
+            fetch(endpoint, { 
+                method: 'POST', 
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiToken
+                }, 
+                body: JSON.stringify({
+                    text: input,
+                    weights: editor.getValue()
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // format result
+                    resultElement.textContent = JSON.stringify(data, null, 8);
+                })
+                .catch(error => resultElement.textContent = JSON.stringify(error, null, 4)); 
+        });
+    </script>
+</body>
+
+</html>
