@@ -28,9 +28,9 @@ docker manifest inspect 086829801639.dkr.ecr.eu-west-1.amazonaws.com/snetd:lates
 ```bash
 
 # Upload config once bucket is there
-AWS_PROFILE=trustlevel aws s3 cp ./configs/dev/snetd.config.json s3://dev-snetd-config/snetd.config.json
+AWS_PROFILE=trustlevel aws s3 cp ./configs/dev/.snet/snetd.config.json s3://dev-snetd-config/snetd.config.json
 
-AWS_PROFILE=trustlevel aws s3 cp ./configs/prd/snetd.config.json s3://prd-snetd-config/snetd.config.json
+AWS_PROFILE=trustlevel aws s3 cp ./configs/prd/.snet/snetd.config.json s3://prd-snetd-config/snetd.config.json
 
 ```
 
