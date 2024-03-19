@@ -9,7 +9,7 @@ export interface NLPAnalyzer<T> {
 
 export interface Weights {
   polarity: number;
-  subjectivity: number;
+  objectivity: number;
   bias: number;
 }
 
@@ -90,7 +90,7 @@ export class Service {
       console.log('calculate weighted score', weights, sentimentScore, biasScore);
 
       // TODO: add check if weights are in the correcrt range [0.0, 1.0]
-      const sumOfWeights = Math.abs(weights.subjectivity) + Math.abs(weights.polarity) + Math.abs(weights.bias);
+      const sumOfWeights = Math.abs(weights.objectivity) + Math.abs(weights.polarity) + Math.abs(weights.bias);
       
       const biasInput = biasScore.label === "Biased" ? biasScore.score * -1.0 : biasScore.score;
       // normalize biase score [-1.0, 1.0] => [0.0, 1.0]
@@ -99,17 +99,20 @@ export class Service {
       // normalize polarity score [-1.0, 1.0] => [0.0, 1.0]
       const polarity = (1.0 + sentimentScore.polarity) / 2.0;
 
-      const subjectivity = sentimentScore.subjectivity;
+      // see https://textblob.readthedocs.io/en/dev/api_reference.html#textblob.blob.BaseBlob.subjectivity
+      // convert subjectivity score to objectivity score because 
+      // trust level score should favor objectivity over subjectivity
+      const objectivity = (sentimentScore.subjectivity - 1.0) * -1.0;
 
       // weightedScore in the range of [-1.0, 1.0]
       const weightedScore: number = ((bias * weights.bias) 
         + (polarity * weights.polarity) 
-        + (subjectivity * weights.subjectivity)) / sumOfWeights;
+        + (objectivity * weights.objectivity)) / sumOfWeights;
 
       console.log(`weightedScore = (
         (bias(${bias}) * weight(${weights.bias}))
         + (polarity(${polarity}) * weight(${weights.polarity})) 
-        + (subjectivity(${subjectivity}) * weight(${weights.subjectivity}))
+        + (objectivity(${objectivity}) * weight(${weights.objectivity}))
         ) / sumOfWeights(${sumOfWeights}) => ${weightedScore}`);
 
     return parseFloat(weightedScore.toPrecision(2))

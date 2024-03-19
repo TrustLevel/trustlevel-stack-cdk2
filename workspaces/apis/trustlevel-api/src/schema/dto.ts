@@ -2,7 +2,7 @@ import Joi from 'joi';
 
 export const TrustLevelWeightsDtoSchema = Joi.object({
   polarity: Joi.number().required(),
-  subjectivity: Joi.number().required(),
+  objectivity: Joi.number().required(),
   bias: Joi.number().required(),
 });
 
@@ -18,7 +18,7 @@ export interface TrustlevelCreateDto {
 
 export interface TrustLevelWeightsDto {
   polarity: number;
-  subjectivity: number;
+  objectivity: number;
   bias: number;
 }
 

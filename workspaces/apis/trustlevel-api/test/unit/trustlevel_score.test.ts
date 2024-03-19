@@ -8,12 +8,12 @@ describe('content quality score tests', () => {
       {
         weights: {
           polarity: 1.0,
-          subjectivity: 1.0,
+          objectivity: 1.0,
           bias: 1.0,
         },
         sentiment: {
           polarity: 1.0,
-          subjectivity: 1.0,
+          subjectivity: 0.0,
         },
         bias: {
           label: "Normal",
@@ -27,12 +27,12 @@ describe('content quality score tests', () => {
       {
         weights: {
           polarity: 1.0,
-          subjectivity: 1.0,
+          objectivity: 1.0,
           bias: 1.0,
         },
         sentiment: {
           polarity: -1.0,
-          subjectivity: 0.0,
+          subjectivity: 1.0,
         },
         bias: {
           label: "Biased",
@@ -46,7 +46,7 @@ describe('content quality score tests', () => {
       {
         weights: {
           polarity: 1.0,
-          subjectivity: 1.0,
+          objectivity: 1.0,
           bias: 1.0,
         },
         sentiment: {
@@ -65,12 +65,12 @@ describe('content quality score tests', () => {
       {
         weights: {
           polarity: 0.5,
-          subjectivity: 0.5,
+          objectivity: 0.5,
           bias: 0.5,
         },
         sentiment: {
           polarity: 1.0,
-          subjectivity: 1.0,
+          subjectivity: 0.0,
         },
         bias: {
           label: "Normal",
@@ -84,7 +84,7 @@ describe('content quality score tests', () => {
       {
         weights: {
           polarity: 0.0,
-          subjectivity: 0.0,
+          objectivity: 0.0,
           bias: 1.0,
         },
         sentiment: {
@@ -103,12 +103,12 @@ describe('content quality score tests', () => {
       {
         weights: {
           polarity: 0.6,
-          subjectivity: 0.6,
+          objectivity: 0.6,
           bias: 0.5,
         },
         sentiment: {
           polarity: 0.65,
-          subjectivity: 0.7,
+          subjectivity: 0.3,
         },
         bias: {
           label: "Biased",
@@ -123,7 +123,7 @@ describe('content quality score tests', () => {
         weights: undefined,
         sentiment: {
           polarity: 1.0,
-          subjectivity: 1.0,
+          subjectivity: 0.0,
         },
         bias: {
           label: "Normal",
@@ -141,7 +141,7 @@ describe('content quality score tests', () => {
       analyzeText: jest.fn().mockReturnValue(Promise.resolve(testCase.bias))
     };
   
-    const service = new Service({bias: 1.0, polarity: 1.0, subjectivity: 1.0}, sentimentMock, biasMock);
+    const service = new Service({bias: 1.0, polarity: 1.0, objectivity: 1.0}, sentimentMock, biasMock);
 
     // when
     const requestBody: TrustlevelCreateDto = {
@@ -164,7 +164,7 @@ describe('content quality score tests', () => {
       expect(result.metadata?.sentiment.subjectivity).toBe(testCase.sentiment.subjectivity);
       expect(result.metadata?.weights.bias).toBe(testCase.weights?.bias);
       expect(result.metadata?.weights.polarity).toBe(testCase.weights?.polarity);
-      expect(result.metadata?.weights.subjectivity).toBe(testCase.weights?.subjectivity);
+      expect(result.metadata?.weights.objectivity).toBe(testCase.weights?.objectivity);
     } else {
       expect(result.metadata).toBeUndefined()
     }

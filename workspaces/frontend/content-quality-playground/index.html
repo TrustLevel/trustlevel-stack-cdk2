@@ -47,6 +47,7 @@
             <option value="">Select an option</option>
             <option value="https://2q2ffhhelb.execute-api.eu-west-1.amazonaws.com/v1/trustlevels">development</option>
             <option value="https://powr86cuh9.execute-api.eu-west-1.amazonaws.com/v1/trustlevels">production</option>
+            <option value="http://localhost:8080/">local bias</option>
         </select>
 
         <label for="token">API token:</label>
@@ -69,7 +70,7 @@
                         step: 0.01,
                         format: "number",
                     },
-                    subjectivity: {
+                    objectivity: {
                         type: "number",
                         maximum: 1.0,
                         minimum: 0.0,
