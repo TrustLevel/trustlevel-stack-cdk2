@@ -8,7 +8,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install necessary packages including AWS CLI and Python
 RUN apt-get update && \
-    apt-get install -y wget awscli python3 && \
+    apt-get install -y wget && \
+    apt-get install -y awscli && \
+    apt-get install -y python3 && \
     apt-get clean
 
 # Reset the frontend (optional)

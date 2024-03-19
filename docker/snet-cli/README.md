@@ -29,7 +29,7 @@ docker exec snet-cli snet organization info trustlevel-aws-test
 docker exec -it snet-cli snet channel open-init trustlevel-aws-test default_groups 1.0 +200
 
 # Execute service call
-docker exec -it snet-cli snet client call trustlevel-aws-test trustlevel-aws-test default_groups determineTrustLevel '{"query":"Hello World"}'
+docker exec -it snet-cli snet client call trustlevel-aws-test trustlevel-aws-service-test-5 default_groups determineTrustLevel '{"query":"Hello World"}'
 
 # Close payment channel - only possible if the channel has been expired
 docker exec -it snet-cli snet channel claim-timeout-all

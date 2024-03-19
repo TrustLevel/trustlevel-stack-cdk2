@@ -26,6 +26,7 @@ import {LoadBalancerTarget} from 'aws-cdk-lib/aws-route53-targets';
 import {
   ApplicationLoadBalancer,
   ApplicationProtocol,
+  ApplicationProtocolVersion,
   ApplicationTargetGroup,
   TargetType,
   Protocol,
@@ -289,13 +290,14 @@ export class SnetdStack extends Stack {
         port: 7001,
         protocol: ApplicationProtocol.HTTP, // For the target group protocol
         targetType: TargetType.IP,
+        protocolVersion: ApplicationProtocolVersion.GRPC,
         healthCheck: {
           enabled: true,
           interval: Duration.seconds(30),
-          path: '/', // Health check path
-          port: '8080', // Health check port
+          path: '/grpc.health.v1.Health/Check', // Health check path
+          port: '7001', // Health check port
           protocol: Protocol.HTTP,
-          healthyHttpCodes: '200', // Expected HTTP code for healthy response
+          healthyGrpcCodes: '0', // Expected gRPC code for healthy response
         },
       }
     );
