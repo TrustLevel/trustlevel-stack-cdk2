@@ -92,9 +92,9 @@ export class Service {
       // TODO: add check if weights are in the correcrt range [0.0, 1.0]
       const sumOfWeights = Math.abs(weights.subjectivity) + Math.abs(weights.polarity) + Math.abs(weights.bias);
       
-      let bias = biasScore.label === "Biased" ? biasScore.score * -1.0 : biasScore.score;
+      const biasInput = biasScore.label === "Biased" ? biasScore.score * -1.0 : biasScore.score;
       // normalize biase score [-1.0, 1.0] => [0.0, 1.0]
-      bias = (1.0 + bias) / 2.0;
+      const bias = (1.0 + biasInput) / 2.0;
 
       // normalize polarity score [-1.0, 1.0] => [0.0, 1.0]
       const polarity = (1.0 + sentimentScore.polarity) / 2.0;

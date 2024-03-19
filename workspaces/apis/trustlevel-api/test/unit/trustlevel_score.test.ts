@@ -15,10 +15,10 @@ describe('content quality score tests', () => {
           polarity: 1.0,
           subjectivity: 1.0,
         },
-        bias: [{
+        bias: {
           label: "Normal",
           score: 1.0,
-        }],
+        },
         expected_sore: 1.0,
       },
     ],
@@ -34,10 +34,10 @@ describe('content quality score tests', () => {
           polarity: -1.0,
           subjectivity: 0.0,
         },
-        bias: [{
+        bias: {
           label: "Biased",
           score: 1.0,
-        }],
+        },
         expected_sore: 0.0,
       },
     ],
@@ -53,10 +53,10 @@ describe('content quality score tests', () => {
           polarity: 0.5,
           subjectivity: 0.5,
         },
-        bias: [{
+        bias: {
           label: "Biased",
           score: 0.5,
-        }],
+        },
         expected_sore: 0.5
       },
     ],
@@ -72,10 +72,10 @@ describe('content quality score tests', () => {
           polarity: 1.0,
           subjectivity: 1.0,
         },
-        bias: [{
+        bias: {
           label: "Normal",
           score: 1.0,
-        }],
+        },
         expected_sore: 1.0
       },
     ],
@@ -91,10 +91,10 @@ describe('content quality score tests', () => {
           polarity: 0.6,
           subjectivity: 0.5,
         },
-        bias: [{
+        bias: {
           label: "Biased",
           score: 0.9,
-        }],
+        },
         expected_sore: 0.05
       },
     ],
@@ -110,10 +110,10 @@ describe('content quality score tests', () => {
           polarity: 0.65,
           subjectivity: 0.7,
         },
-        bias: [{
+        bias: {
           label: "Biased",
           score: 0.6,
-        }],
+        },
         expected_sore: 0.6
       },
     ],
@@ -125,10 +125,10 @@ describe('content quality score tests', () => {
           polarity: 1.0,
           subjectivity: 1.0,
         },
-        bias: [{
+        bias: {
           label: "Normal",
           score: 1.0,
-        }],
+        },
         expected_sore: 1.0,
       },
     ],
@@ -158,8 +158,8 @@ describe('content quality score tests', () => {
     // TODO extract into dedicated test
     if (testCase.weights) {
       // if custom weights are passed metadata is returned
-      expect(result.metadata?.bias.label).toBe(testCase.bias[0].label);
-      expect(result.metadata?.bias.score).toBe(testCase.bias[0].score);
+      expect(result.metadata?.bias.label).toBe(testCase.bias.label);
+      expect(result.metadata?.bias.score).toBe(testCase.bias.score);
       expect(result.metadata?.sentiment.polarity).toBe(testCase.sentiment.polarity);
       expect(result.metadata?.sentiment.subjectivity).toBe(testCase.sentiment.subjectivity);
       expect(result.metadata?.weights.bias).toBe(testCase.weights?.bias);
