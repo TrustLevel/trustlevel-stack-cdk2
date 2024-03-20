@@ -51,7 +51,7 @@ export class TrustlevelPostStack extends Stack {
         BIASD4DATA_URL: `http://biasDetect-service-${stage}.biasDetect-${stage}.local:5000`, // Use the actual Service Discovery DNS name
         DEFAULT_WEIGHTS: JSON.stringify({
           polarity: 1.0,
-          subjectivity: 1.0,
+          objectivity: 1.0,
           bias: 1.0,
         })
       },
