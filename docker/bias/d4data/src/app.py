@@ -60,6 +60,40 @@ classifier = pipeline(
 )  # cuda = 0,1 based on gpu availability
 app.logger.info("model setup complete")
 
+def combine_classifications(classifications):
+    """
+    Combine the results of multiple classifications within one text corpus into a single result
+    """
+    app.logger.info(f"combine classifications: {classifications}")
+
+    bias_score = 0
+    non_bias_score = 0
+    biased_chunks = 0
+    non_biased_chunks = 0
+    for chunk in classifications:
+        if chunk["label"] == "Biased":
+            biased_chunks += 1
+            bias_score += chunk["score"]
+        else:
+            non_biased_chunks += 1
+            non_bias_score += chunk["score"]
+    bias_score = bias_score / biased_chunks if biased_chunks > 0 else 0
+    non_bias_score = non_bias_score / non_biased_chunks if non_biased_chunks > 0 else 0
+
+    app.logger.info(f"bias_score: {bias_score} non_bias_score: {non_bias_score}")
+
+    if bias_score > non_bias_score:
+        # text is mostly biased
+        return {
+            "label": "Biased",
+            "score": bias_score - non_bias_score
+        }
+    
+    # text is mostly non-biased
+    return {
+        "label": "Non-biased",
+        "score": non_bias_score - bias_score
+    }
 
 @app.route("/analyze", methods=["POST"])
 def analyze_text():
@@ -71,16 +105,19 @@ def analyze_text():
         return jsonify({"error": "No text provided"}), 400
 
     try:
-        output = classifier(text)
+        # chunk text into 400 tokens
+        tokens = text.split()
+        classified_chunks = []
+        for i in range(0, len(tokens), 300):
+            chunk = " ".join(tokens[i : i + 300])
+            classified_chunks.append(classifier(chunk)[0])
+
+        result = combine_classifications(classified_chunks)
+
         # Log only the first 30 characters of the text
         preview_text = text[:30] + "..." if len(text) > 30 else text
         app.logger.info(f"Analyzed text (preview): {preview_text}")
-        return jsonify(
-            {
-                "label": output[0]["label"],
-                "score": output[0]["score"],
-            }
-        )
+        return jsonify(result)
     except Exception as e:
         app.logger.error(f"Error in processing text: {preview_text}", exc_info=True)
         return jsonify({"error": "Error in processing request"}), 500
