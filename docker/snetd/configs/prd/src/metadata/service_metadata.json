@@ -9,7 +9,7 @@
         {
             "group_name": "default_groups",
             "endpoints": [
-                "http://trust-level.com:7001"
+                "http://trust-level.com:443"
             ],
             "pricing": [
                 {

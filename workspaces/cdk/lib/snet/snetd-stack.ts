@@ -19,6 +19,7 @@ import {
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
 import {Bucket} from 'aws-cdk-lib/aws-s3';
+import * as S3Deployment from 'aws-cdk-lib/aws-s3-deployment';
 import {IVpc, Peer, Port, SecurityGroup} from 'aws-cdk-lib/aws-ec2';
 import {SnetVpc} from '../vpcs/snet-vpc-stack';
 import {HostedZone, ARecord, RecordTarget} from 'aws-cdk-lib/aws-route53';
@@ -84,11 +85,19 @@ export class SnetdStack extends Stack {
 
   private createConfigBucket(stagePrefix: string): Bucket {
     // Create a new S3 Bucket for the configuration file
-    return new Bucket(this, `${stagePrefix}-SnetdConfigBucket`, {
+    const configBucket = new Bucket(this, `${stagePrefix}-SnetdConfigBucket`, {
       bucketName: `${stagePrefix}-snetd-config`,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     });
+    
+    // Fill bucket with configuration files
+    new S3Deployment.BucketDeployment(this, 'SnetdConfigDeployment', {
+      sources: [S3Deployment.Source.asset(`../../docker/snetd/configs/${stagePrefix}`, {exclude: ['**', '!snetd.config.json']})],
+      destinationBucket: configBucket,
+    }); 
+
+    return configBucket
   }
 
   private createTaskRole(stagePrefix: string, configBucket: Bucket): Role {
@@ -166,8 +175,8 @@ export class SnetdStack extends Stack {
           logGroup: logGroup,
           streamPrefix: 'ecs',
         }),
-        // TODO: add a real health check for the load balancer to work
-        healthCheck: {
+        healthCheck: {  
+          // TODO: figure out why curl -f http://localhost:7001/heartbeat || exit 1 is not working
           command: ['CMD-SHELL', 'exit 0'],
           interval: Duration.seconds(30),
           timeout: Duration.seconds(5),
@@ -181,12 +190,8 @@ export class SnetdStack extends Stack {
     );
 
     container.addPortMappings({
+      
       containerPort: 7001,
-      protocol: ECSProtocol.TCP,
-    });
-
-    container.addPortMappings({
-      containerPort: 8080,
       protocol: ECSProtocol.TCP,
     });
   }
@@ -208,12 +213,6 @@ export class SnetdStack extends Stack {
       Peer.anyIpv4(),
       Port.tcp(443),
       'Allow HTTPS traffic from anywhere'
-    );
-
-    albSecurityGroup.addEgressRule(
-      Peer.anyIpv4(),
-      Port.tcp(8080),
-      'Allow health check'
     );
 
     const alb = new ApplicationLoadBalancer(this, `${stagePrefix}-SnetdALB`, {
@@ -248,18 +247,6 @@ export class SnetdStack extends Stack {
       Port.allTraffic(),
       'Allow all inbound traffic for testing'
     );
-
-    // snetdSecurityGroup.addIngressRule(
-    //   Peer.anyIpv4(),
-    //   Port.tcp(7001),
-    //   'Allow public access on port 7001'
-    // );
-
-    // snetdSecurityGroup.addIngressRule(
-    //   Peer.anyIpv4(),
-    //   Port.tcp(8080),
-    //   'Allow public access on port 8080'
-    // );
 
     const service = new FargateService(
       this,
