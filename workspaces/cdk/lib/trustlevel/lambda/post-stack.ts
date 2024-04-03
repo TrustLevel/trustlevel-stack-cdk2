@@ -50,9 +50,24 @@ export class TrustlevelPostStack extends Stack {
         SPACYTEXTBLOB_URL: `http://spacytextblob-service-${stage}.spacytextblob-${stage}.local:5000`, // Use the actual Service Discovery DNS name
         BIASD4DATA_URL: `http://biasDetect-service-${stage}.biasDetect-${stage}.local:5000`, // Use the actual Service Discovery DNS name
         DEFAULT_WEIGHTS: JSON.stringify({
-          polarity: 1.0,
-          objectivity: 1.0,
-          bias: 1.0,
+          polarity: {
+            weight: 1.0,
+            scaling: 1.0,
+            steepness: 5.0,
+            shift: 0.1,
+          },
+          objectivity: {
+            weight: 1.0,
+            scaling: 1.0,
+            steepness: 5.0,
+            shift: 0.1,
+          },
+          bias: {
+            weight: 1.0,
+            scaling: 1.0,
+            steepness: 5.0,
+            shift: 0.1,
+          },
         })
       },
     });

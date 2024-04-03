@@ -1,29 +1,59 @@
 import Joi from 'joi';
 
-export const TrustLevelWeightsDtoSchema = Joi.object({
-  polarity: Joi.number().required(),
-  objectivity: Joi.number().required(),
-  bias: Joi.number().required(),
+export const TrustLevelConfigDtoSchema = Joi.object({
+  polarity: Joi.object({
+    weight: Joi.number().required(),
+    scaling: Joi.number().required(),
+    steepness: Joi.number().required(),
+    shift: Joi.number().required(),
+  }),
+  objectivity: Joi.object({
+    weight: Joi.number().required(),
+    scaling: Joi.number().required(),
+    steepness: Joi.number().required(),
+    shift: Joi.number().required(),
+  }),
+  bias: Joi.object({
+    weight: Joi.number().required(),
+    scaling: Joi.number().required(),
+    steepness: Joi.number().required(),
+    shift: Joi.number().required(),
+  }),
 });
 
 export const TrustlevelCreateDtoSchema = Joi.object({
   text: Joi.string().min(2).required(),
-  weights: TrustLevelWeightsDtoSchema.optional(),
+  config: TrustLevelConfigDtoSchema.optional(),
 });
 
 export interface TrustlevelCreateDto {
   text: string;
-  weights?: TrustLevelWeightsDto;
+  config?: TrustLevelConfigDto;
 }
 
-export interface TrustLevelWeightsDto {
-  polarity: number;
-  objectivity: number;
-  bias: number;
+export interface TrustLevelConfigDto {
+  polarity: {
+    weight: number;
+    scaling: number;
+    steepness: number;
+    shift: number;
+  };
+  objectivity: {
+    weight: number;
+    scaling: number;
+    steepness: number;
+    shift: number;
+  };
+  bias: {
+    weight: number;
+    scaling: number;
+    steepness: number;
+    shift: number;
+  };
 }
 
 export interface TrustLevelMetadataDto {
-  weights: TrustLevelWeightsDto;
+  config: TrustLevelConfigDto;
   sentiment: {
     polarity: number;
     subjectivity: number;
