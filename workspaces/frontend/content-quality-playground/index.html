@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Content Quality Score - Playground</title>
     <script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
     <style>
         textarea {
             display: block;
@@ -39,8 +40,8 @@
         <div id="editor_holder" data-theme="html"></div>
         <textarea id="input" placeholder="Put your text you want to analyze here"></textarea>
 
-        <label for="customWeights">Use custom weights</label>
-        <input id="customWeights" type="checkbox" checked>
+        <label for="customConfig">Use config</label>
+        <input id="customConfig" type="checkbox" checked>
 
         <label for="endpoint">Choose environment:</label>
         <select id="endpoint">
@@ -54,9 +55,13 @@
         <button id="submit">Analyze</button>
         <div id="result">{}</div>
     </div>
+
+    <h1>Sigmoid config</h1>
+    <canvas id="myChart"></canvas>
+
     <script>
         // Initialize the editor with a JSON schema
-        var editor = new JSONEditor(document.getElementById('editor_holder'), {
+        const editor = new JSONEditor(document.getElementById('editor_holder'), {
             schema: {
                 type: "object",
                 title: "Config",
@@ -187,15 +192,15 @@
             const dropdown = document.getElementById("endpoint");
             const endpoint = dropdown.options[dropdown.selectedIndex].value;
             const input = document.getElementById("input").value;
-            const customWeights = document.getElementById("customWeights");
+            const customConfig = document.getElementById("customConfig");
 
             const resultElement = document.getElementById("result");
 
             const body = {
                 text: input
             };
-            if (customWeights.checked) {
-                body.weights = editor.getValue();
+            if (customConfig.checked) {
+                body.config = editor.getValue();
             }
 
             fetch(endpoint, {
@@ -213,6 +218,96 @@
                     resultElement.textContent = now + "\n" + JSON.stringify(data, null, 8);
                 })
                 .catch(error => resultElement.textContent = JSON.stringify(error, null, 4));
+        });
+
+        const ctx = document.getElementById('myChart').getContext('2d');
+
+        // Define the sigmoid function
+        function sigmoid(x, config) {
+            return config.scaling / (1.0 + Math.exp(-config.steepness * (x - config.shift)));
+        }
+
+        const chartConfig = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Bias',
+                        data: [],
+                        borderColor: 'blue',
+                        fill: false,
+                    },
+                    {
+                        label: 'Objectivity',
+                        data: [],
+                        borderColor: 'red',
+                        fill: false,
+                    },
+                    {
+                        label: 'Polarity',
+                        data: [],
+                        borderColor: 'green',
+                        fill: false,
+                    },
+                ]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'X-axis'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Y-axis'
+                        },
+                        ticks: {
+                            beginAtZero: true,
+                            min: 0,
+                            max: 1
+                        }
+                    }]
+                }
+            }
+        };
+
+        const myChart = new Chart(ctx, chartConfig);
+
+        function updateChart(data) {
+
+            // Clear existing chart data (optional)
+            myChart.data.datasets[0].data = [];
+
+            // Update chart data
+            const labels = [];
+            const biasDataPoints = [];
+            const objectivityDataPoints = [];
+            const polarityDataPoints = [];
+
+            // Generate data points for the sigmoid function
+            for (let x = -1; x <= 1; x += 0.1) {
+                labels.push(x);
+                biasDataPoints.push(sigmoid(x, data.bias));
+                objectivityDataPoints.push(sigmoid(x, data.objectivity));
+                polarityDataPoints.push(sigmoid(x, data.polarity));
+            }
+
+            myChart.data.labels = labels;
+            myChart.data.datasets[0].data = biasDataPoints;
+            myChart.data.datasets[1].data = objectivityDataPoints;
+            myChart.data.datasets[2].data = polarityDataPoints;
+            myChart.update();
+        }
+
+        editor.on('change', () => {
+            const jsonData = editor.getValue();
+            updateChart(jsonData);
         });
     </script>
 </body>
