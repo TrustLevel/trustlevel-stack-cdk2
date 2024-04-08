@@ -1,25 +1,37 @@
 import * as dto from './schema/dto';
 import * as spacytextblob from './components/spacytextblobClient';
 import * as biasd4data from './components/biasD4DataClient';
+import * as biasOpenAi from './components/biasOpenAIV1Client';
+
+export interface NLPScore {
+  score: number;
+  original: any;
+}
 
 export interface NLPAnalyzer<T> {
+  // TODO: refactor so that it always returns a score in the range [-1.0,1.0]
+  // e.g. Promise<Score<T>> where T is the original response from the service
   analyzeText(text: string): Promise<T>;
 }
 
 export interface Config {
+  approach: string;
   polarity: {
+    model: string;
     weight: number;
     scaling: number;
     steepness: number;
     shift: number;
   };
   objectivity: {
+    model: string;
     weight: number;
     scaling: number;
     steepness: number;
     shift: number;
   };
   bias: {
+    model: string;
     weight: number;
     scaling: number;
     steepness: number;
@@ -30,15 +42,18 @@ export interface Config {
 export class Service {
   private readonly defaultConfig: Config;
   private readonly spacyTextBlobClient: NLPAnalyzer<spacytextblob.SpacyTextBlobResponse>;
-  private readonly biasD4DataClient: NLPAnalyzer<biasd4data.BiasD4DataResponse>;
+  private readonly biasD4DataClient: NLPAnalyzer<NLPScore>;
+  private readonly biasOpenAIClient: NLPAnalyzer<NLPScore>;
 
   constructor(
     defaultConfig: Config,
     sentimentClient: NLPAnalyzer<spacytextblob.SpacyTextBlobResponse>,
-    biasClient: NLPAnalyzer<biasd4data.BiasD4DataResponse>) {
+    biasClient: NLPAnalyzer<NLPScore>,
+    buasOpenAIClient: NLPAnalyzer<NLPScore>) {
     this.defaultConfig = defaultConfig;
     this.spacyTextBlobClient = sentimentClient;
     this.biasD4DataClient = biasClient;
+    this.biasOpenAIClient = buasOpenAIClient;
   }
 
   // TODO: rename to content-quality score
@@ -48,6 +63,7 @@ export class Service {
     console.log('determineTrustlevel called', createDto);
     const config = createDto.config ? createDto.config : this.defaultConfig;
 
+    // TODO extract into own class - note: somehow make sure spacyTextBlobClient is not called twice
     const spacyTextBlobResponse = await this.spacyTextBlobClient.analyzeText(
       createDto.text
     );
@@ -66,23 +82,12 @@ export class Service {
       `spacyTextBlob response: ${JSON.stringify(spacyTextBlobResponse)} polarityScore: ${polarityScore} objectivityScore: ${objectivityScore}`
     );
 
-    const biasD4DataClientResponse = await this.biasD4DataClient.analyzeText(
-      createDto.text
-    );
-    const biasScore = biasToTrustLevel(biasD4DataClientResponse, {
-      scaling: config.bias.scaling,
-      steepness: config.bias.steepness,
-      shift: config.bias.shift,
-    });
-  
-    console.log(
-      `biasD4Data response: ${JSON.stringify(biasD4DataClientResponse)} biasScore: ${biasScore}`
-    );
-
+    
+    const biasScore = await this.biasScore(createDto.text, config)
 
     let response: dto.TrustlevelDto = {
       // TODO: rename to content quality score
-      trustlevel: this.weightedScore(config, polarityScore, objectivityScore, biasScore),
+      trustlevel: this.weightedScore(config, polarityScore, objectivityScore, biasScore.score),
     };
 
     // in case custom config are given the api returns metadata
@@ -92,13 +97,43 @@ export class Service {
         trustlevel: response.trustlevel,
         metadata: {
           config: config,
-          bias: biasD4DataClientResponse,
-          sentiment: spacyTextBlobResponse,
+          bias: biasScore,
+          polarity: {
+            score: polarityScore,
+            original: spacyTextBlobResponse.polarity,
+          },
+          objectivity: {
+            score: objectivityScore,
+            original: spacyTextBlobResponse.subjectivity,
+          },
         }
       }
     }
 
     return response;
+  }
+
+  private async biasScore(text: string, config: Config ): Promise<{score: number, original?: any}> {
+    let biasScore: NLPScore;
+    if (config.bias.model === 'openai/gpt-3.5-bias-v1') {
+      biasScore = await this.biasOpenAIClient.analyzeText(text);
+    } else {
+      biasScore = await this.biasD4DataClient.analyzeText(text);
+    }
+    console.log(
+      `bias response: ${JSON.stringify(biasScore)}`
+    );
+
+    const score =  sigmoid(biasScore.score, {
+      scaling: config.bias.scaling,
+      steepness: config.bias.steepness,
+      shift: config.bias.shift,
+    });
+
+    return {
+      score: score,
+      original: biasScore,
+    }
   }
 
   /**
@@ -137,19 +172,6 @@ export class Service {
 }
 
 /**
- * Convert bias score to trust level using a sigmoid function to favor non-biased content
- * 
- * @param bias score [0.0, 1.0] and a label representing whether the text is biased or not
- * @param config sigmoid parameters
- * @returns trust level score [0.0, 1.0]
- */
-export function biasToTrustLevel(bias: biasd4data.BiasD4DataResponse, config: SigmoidConfig): number {
-  // convert to range [-1.0, 1.0] where -1.0 is biased and 1.0 is non-biased
-  const biasInput = bias.label === "Biased" ? bias.score * -1.0 : bias.score;
-  return sigmoid(biasInput, config);
-}
-
-/**
  * Convert polarity of given text to trust level using a sigmoid function to favor positive content
  * 
  * @param polarity how negative or how positive a piece of text is in range [-1.0, 1.0] where -1.0 is very negative and 1.0 is very positive 
@@ -157,6 +179,10 @@ export function biasToTrustLevel(bias: biasd4data.BiasD4DataResponse, config: Si
  * @returns trust level score [0.0, 1.0]
  */
 export function polarityToTrustLevel(polarity: number, config: SigmoidConfig): number {
+  if (polarity < 0) {
+    polarity = polarity * -1.0;
+  }
+  polarity = 1.0 - polarity;
   return sigmoid(polarity, config);
 }
 
@@ -171,7 +197,7 @@ export function subjectivityToTrustLevel(subjectivity: number, config: SigmoidCo
   // see https://textblob.readthedocs.io/en/dev/api_reference.html#textblob.blob.BaseBlob.subjectivity
   // convert subjectivity score to objectivity score because 
   // trust level score should favor objectivity over subjectivity
-  const objectivity = (subjectivity - 1.0) * -1.0;
+    const objectivity = (subjectivity - 1.0) * -1.0;
 
   // map [0.0, 1.0] to [-1.0, 1.0] where -1.0 is very subjective and 1.0 is very objective
   const mappedObjectivity = (objectivity - 0.5) * 2.0;

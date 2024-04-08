@@ -66,10 +66,23 @@
                 type: "object",
                 title: "Config",
                 properties: {
+                    approach: {
+                        type: "string",
+                        description: "Choose the approach for the trust level calculation",
+                        title: "Approach",
+                        enum: ["individual", "openai/gpt-3.5-trustlevel-v1"],
+                        default: "individual",
+                    },
                     polarity: {
                         type: "object",
                         title: "Polarity",
                         properties: {
+                            model: {
+                                type: "string",
+                                title: "Model",
+                                enum: ["spacytextblob", "openai/gpt-3.5-polarity-v1"],
+                                default: "openai/gpt-3.5-polarity-v1",
+                            },
                             weight: {
                                 type: "number",
                                 maximum: 1.0,
@@ -102,6 +115,12 @@
                         type: "object",
                         title: "Objectivity",
                         properties: {
+                            model: {
+                                type: "string",
+                                title: "Model",
+                                enum: ["spacytextblob", "openai/gpt-3.5-objectivity-v1"],
+                                default: "openai/gpt-3.5-objectivity-v1",
+                            },
                             weight: {
                                 type: "number",
                                 maximum: 1.0,
@@ -134,6 +153,12 @@
                         type: "object",
                         title: "Bias",
                         properties: {
+                            model: {
+                                type: "string",
+                                title: "Model",
+                                enum: ["openai/gpt-3.5-bias-v1", "d4data"],
+                                default: "openai/gpt-3.5-bias-v1",
+                            },
                             weight: {
                                 type: "number",
                                 maximum: 1.0,

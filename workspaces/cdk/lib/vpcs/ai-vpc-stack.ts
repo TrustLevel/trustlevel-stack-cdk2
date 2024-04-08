@@ -50,6 +50,12 @@ export class AiVpcStack extends Stack {
       'Allow Lambda to access Spacytextblob on port 5000'
     );
 
+    lambdaSecurityGroup.addEgressRule(
+      Peer.anyIpv4(),
+      Port.tcp(443),
+      'Allow internet access on port 443 for OpenAI'
+    );
+
     spacytextblobSecurityGroup.addIngressRule(
       lambdaSecurityGroup,
       Port.tcp(5000),

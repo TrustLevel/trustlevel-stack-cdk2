@@ -50,19 +50,23 @@ export class TrustlevelPostStack extends Stack {
         SPACYTEXTBLOB_URL: `http://spacytextblob-service-${stage}.spacytextblob-${stage}.local:5000`, // Use the actual Service Discovery DNS name
         BIASD4DATA_URL: `http://biasDetect-service-${stage}.biasDetect-${stage}.local:5000`, // Use the actual Service Discovery DNS name
         DEFAULT_WEIGHTS: JSON.stringify({
+          approach: 'individual',
           polarity: {
+            model: 'spacytextblob',
             weight: 1.0,
             scaling: 1.0,
             steepness: 5.0,
             shift: 0.1,
           },
           objectivity: {
+            model: 'spacytextblob',
             weight: 1.0,
             scaling: 1.0,
             steepness: 5.0,
             shift: 0.1,
           },
           bias: {
+            model: 'openai/gpt-3.5-bias-v1',
             weight: 1.0,
             scaling: 1.0,
             steepness: 5.0,
