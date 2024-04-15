@@ -53,7 +53,7 @@
         <label for="token">API token:</label>
         <input type="password" id="token" name="token" placeholder="API token">
         <button id="submit">Analyze</button>
-        <div id="result">{}</div>
+        <div id="result">{}</div>   
     
         <h1>Sigmoid config</h1>
         <canvas id="myChart"></canvas>
@@ -66,128 +66,67 @@
                 type: "object",
                 title: "Config",
                 properties: {
-                    approach: {
-                        type: "string",
-                        description: "Choose the approach for the trust level calculation",
-                        title: "Approach",
-                        enum: ["individual", "openai/gpt-3.5-trustlevel-v1"],
-                        default: "individual",
-                    },
-                    polarity: {
-                        type: "object",
-                        title: "Polarity",
-                        properties: {
-                            model: {
-                                type: "string",
-                                title: "Model",
-                                enum: ["spacytextblob", "openai/gpt-3.5-polarity-v1"],
-                                default: "openai/gpt-3.5-polarity-v1",
-                            },
-                            weight: {
-                                type: "number",
-                                maximum: 1.0,
-                                minimum: 0.0,
-                                default: 1.0,
-                                step: 0.01,
-                                format: "number",
-                            },
-                            scaling: {
-                                type: "number",
-                                default: 1.0,
-                                step: 0.01,
-                                format: "number",
-                            },
-                            steepness: {
-                                type: "number",
-                                default: 5.0,
-                                step: 0.01,
-                                format: "number",
-                            },
-                            shift: {
-                                type: "number",
-                                default: 0.1,
-                                step: 0.01,
-                                format: "number",
-                            },
-                        },
-                    },
-                    objectivity: {
-                        type: "object",
-                        title: "Objectivity",
-                        properties: {
-                            model: {
-                                type: "string",
-                                title: "Model",
-                                enum: ["spacytextblob", "openai/gpt-3.5-objectivity-v1"],
-                                default: "openai/gpt-3.5-objectivity-v1",
-                            },
-                            weight: {
-                                type: "number",
-                                maximum: 1.0,
-                                minimum: 0.0,
-                                default: 1.0,
-                                step: 0.01,
-                                format: "number",
-                            },
-                            scaling: {
-                                type: "number",
-                                default: 1.0,
-                                step: 0.01,
-                                format: "number",
-                            },
-                            steepness: {
-                                type: "number",
-                                default: 5.0,
-                                step: 0.01,
-                                format: "number",
-                            },
-                            shift: {
-                                type: "number",
-                                default: 0.1,
-                                step: 0.01,
-                                format: "number",
+                    models: {
+                        type: "array",
+                        items: {
+                            title: "Model",
+                            type: "object",
+                            properties: {
+                                name: {
+                                    type: "string",
+                                    enum: ["openai/gpt-3.5-trustlevel-v1",  "polarity/openai/gpt-3.5-v1", "polarity/spacytextblob", "objectivity/openai/gpt-3.5-v1", "objectivity/spacytextblob", "bias/openai/gpt-3.5-v1", "bias/d4data"],
+                                    default: "openai/gpt-3.5-trustlevel-v1",
+                                },
+                                config: {
+                                    type: "object",
+                                    properties: {
+                                        weight: {
+                                            type: "number",
+                                            maximum: 1.0,
+                                            minimum: 0.0,
+                                            default: 1.0,
+                                            step: 0.01,
+                                            format: "number",
+                                        },
+                                        model: {
+                                            type: "object",
+                                            properties: {
+                                                temperatur: {
+                                                    default: 1.0,
+                                                    step: 0.01,
+                                                    format: "number",
+                                                }
+                                            },
+                                        },
+                                        activation: {
+                                            type: "object",
+                                            properties: {
+                                                scaling: {
+                                                    type: "number",
+                                                    default: 1.0,
+                                                    step: 0.01,
+                                                    format: "number",
+                                                },
+                                                steepness: {
+                                                    type: "number",
+                                                    default: 5.0,
+                                                    step: 0.01,
+                                                    format: "number",
+                                                },
+                                                shift: {
+                                                    type: "number",
+                                                    default: 0.1,
+                                                    step: 0.01,
+                                                    format: "number",
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
                             },
                         },
                     },
-                    bias: {
-                        type: "object",
-                        title: "Bias",
-                        properties: {
-                            model: {
-                                type: "string",
-                                title: "Model",
-                                enum: ["openai/gpt-3.5-bias-v1", "d4data"],
-                                default: "openai/gpt-3.5-bias-v1",
-                            },
-                            weight: {
-                                type: "number",
-                                maximum: 1.0,
-                                minimum: 0.0,
-                                default: 1.0,
-                                step: 0.01,
-                                format: "number",
-                            },
-                            scaling: {
-                                type: "number",
-                                default: 1.0,
-                                step: 0.01,
-                                format: "number",
-                            },
-                            steepness: {
-                                type: "number",
-                                default: 5.0,
-                                step: 0.01,
-                                format: "number",
-                            },
-                            shift: {
-                                type: "number",
-                                default: 0.1,
-                                step: 0.01,
-                                format: "number",
-                            },
-                        },
-                    },
-                }
+                },
             },
             required_by_default: true,
         });
@@ -288,28 +227,38 @@
 
         function updateChart(data) {
 
+            // Extract model config from JSON data
+            const models = data.models
+            console.log(myChart.data.datasets);
+
             // Clear existing chart data (optional)
-            myChart.data.datasets[0].data = [];
+            myChart.data.datasets = [];
 
             // Update chart data
             const labels = [];
-            const biasDataPoints = [];
-            const objectivityDataPoints = [];
-            const polarityDataPoints = [];
+            const datasets = [];
+
+            // initialize datasets
+            for (const model of models) {
+                datasets.push({
+                    label: model.name,
+                    data: [],
+                    borderColor: 'blue',
+                    fill: false,
+                });
+            }
 
             // Generate data points for the sigmoid function
             for (let x = -1; x <= 1; x += 0.1) {
                 labels.push(x);
-                biasDataPoints.push(sigmoid(x, data.bias));
-                objectivityDataPoints.push(sigmoid(x, data.objectivity));
-                polarityDataPoints.push(sigmoid(x, data.polarity));
+                for (const [index, model] of models.entries()) {
+                    const config = model.config.activation;
+                    datasets[index].data.push(sigmoid(x, config));
+                }
             }
 
             myChart.data.labels = labels;
-            myChart.data.datasets[0].data = biasDataPoints;
-            myChart.data.datasets[1].data = objectivityDataPoints;
-            myChart.data.datasets[2].data = polarityDataPoints;
-            myChart.update();
+            myChart.data.datasets = datasets;
         }
 
         editor.on('change', () => {
