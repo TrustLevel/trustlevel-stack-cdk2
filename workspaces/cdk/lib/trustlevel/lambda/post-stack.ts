@@ -1,10 +1,11 @@
 import {Stack, Duration, RemovalPolicy} from 'aws-cdk-lib';
 import {Construct} from 'constructs';
 import {Stage} from '../../../bin/stages';
-import {AssetCode, Function, Runtime} from 'aws-cdk-lib/aws-lambda';
+import {Architecture, AssetCode, Function, Runtime} from 'aws-cdk-lib/aws-lambda';
 import {StagedStackProps} from '../../../bin/stagedStackProps';
 import {SubnetType} from 'aws-cdk-lib/aws-ec2';
 import {AiVpc} from '../../vpcs/ai-vpc-stack';
+import { PythonFunction } from '@aws-cdk/aws-lambda-python-alpha';
 
 export interface TrustlevelPostStackProps extends StagedStackProps {
   aiVpc: AiVpc;
@@ -27,6 +28,16 @@ export class TrustlevelPostStack extends Stack {
     const functionName = `${Stage[props!.stage]}-trustlevel-post`;
 
     const stage = Stage[props!.stage];
+
+    const pythonFunctionName = `${functionName}-python`
+    new PythonFunction(this, pythonFunctionName, {
+      functionName: pythonFunctionName,
+      entry: '../../workspaces/apis/content-score-api',
+      runtime: Runtime.PYTHON_3_11,
+      architecture: Architecture.ARM_64,
+      index: 'main.py',
+      handler: 'handler',
+    })
 
     const lambdaFunction = new Function(this, functionName, {
       functionName,
