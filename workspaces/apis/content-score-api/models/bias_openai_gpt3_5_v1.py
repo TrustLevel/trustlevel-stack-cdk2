@@ -5,8 +5,6 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.pydantic_v1 import BaseModel, Field, validator
 from langchain_openai import ChatOpenAI
 
-model = ChatOpenAI(temperature=0)
-
 
 class BiasResponse(BaseModel):
     """BiasResponse determening the bias score of a text."""
@@ -26,20 +24,20 @@ class BiasResponse(BaseModel):
         return field
 
 
-parser = JsonOutputParser(pydantic_object=BiasResponse)
-
-prompt = PromptTemplate(
-    template="You will be provided with text delimited by triple quotes for which you determine the bias score.\n{format_instructions}\n{input}\n",
-    input_variables=["input"],
-    partial_variables={"format_instructions": parser.get_format_instructions()},
-)
-
-chain = prompt | model | parser
-
-
 class BiasOpenAIGPT35V1:
+    def __init__(self):
+        model = ChatOpenAI(temperature=0)
+        parser = JsonOutputParser(pydantic_object=BiasResponse)
+        prompt = PromptTemplate(
+            template="You will be provided with text delimited by triple quotes for which you determine the bias score.\n{format_instructions}\n{input}\n",
+            input_variables=["input"],
+            partial_variables={"format_instructions": parser.get_format_instructions()},
+        )
+
+        self.__chain = prompt | model | parser
+
     def analyze_text(self, text: str, config: Dict[str, Any]) -> Dict[str, Any]:
-        response = chain.invoke({"input": text})
+        response = self.__chain.invoke({"input": text})
 
         print("V1 RESULT", response)
 

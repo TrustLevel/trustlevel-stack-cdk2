@@ -2,14 +2,17 @@ import json
 from typing import Dict, Any
 from openai import OpenAI
 
-client = OpenAI()
-
 
 class PolarityOpenAIGPT35V1:
     """PolarityOpenAIGPT35V1 determines the polarity score of a text using simple prompting."""
 
+    __client: OpenAI
+
+    def __init__(self, client: OpenAI):
+        self.__client = client
+
     def analyze_text(self, text: str, config: Dict[str, Any]) -> Dict[str, Any]:
-        response = client.chat.completions.create(
+        response = self.__client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {
