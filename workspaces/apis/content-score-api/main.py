@@ -4,7 +4,7 @@ import models
 from fastapi import FastAPI
 from mangum import Mangum
 from pydantic import BaseModel
-from typing import Dict
+from typing import Dict, Any
 
 
 app = FastAPI()
@@ -17,7 +17,7 @@ class Request(BaseModel):
 
 class Metadata(BaseModel):
     config: tl.Config
-    model_scores: Dict[str, Dict[str, float]]
+    model_scores: Dict[str, Dict[str, Any]]
 
 
 class Response(BaseModel):
@@ -25,7 +25,11 @@ class Response(BaseModel):
     metadata: Metadata = None
 
 
-modelsDict = {tl.ModelType.bias_openai_gpt3_5_v1: models.BiasOpenAIGPT35V1()}
+modelsDict = {
+    tl.ModelType.bias_openai_gpt3_5_v0: models.BiasOpenAIGPT35V0(),
+    tl.ModelType.bias_openai_gpt3_5_v1: models.BiasOpenAIGPT35V1(),
+    tl.ModelType.bias_openai_gpt3_5_v2: models.BiasOpenAIGPT35V2(),
+}
 
 defaultModel = tl.Model(
     name=tl.ModelType.bias_openai_gpt3_5_v1,

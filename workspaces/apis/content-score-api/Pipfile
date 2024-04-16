@@ -4,8 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fastapi = {extras = ["all"], version = "*"}
-mangum = "*"
+fastapi = {extras = ["all"], version = "==0.110.0"}
+mangum = "0.17.0"
+openai = "*"
+langchain = "*"
+langchain-openai = "*"
 
 [dev-packages]
 ruff = "*"
