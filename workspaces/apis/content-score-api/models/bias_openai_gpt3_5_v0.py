@@ -14,7 +14,7 @@ class BiasOpenAIGPT35V0:
             messages=[
                 {
                     "role": "system",
-                    "content": 'You will be provided with text delimited by triple quotes for which you determine the bias score ("bias_score") in the range [-1.0,1.0] where 1.0 means not biased and -1.0 means the text is very biased. You only reply with a valid JSON object with the field "bias_score". Explain step by step how you came up with the score in an additional JSON object field called "chain_of_thought" but do not summarize the text.',
+                    "content": 'You will be provided with text delimited by triple quotes for which you determine the bias score ("bias_score") in the range [-1.0,1.0] where 1.0 means not biased and -1.0 means the text is very biased. You reply with one valid JSON object only, with the field "bias_score". Explain step by step how you came up with the score in an additional JSON object field called "chain_of_thought" but do not summarize the text.',
                 },
                 {"role": "user", "content": f'"""{text}"""'},
             ],
