@@ -14,7 +14,9 @@ class ModelType(str, Enum):
     polarity_spacytextblob = "polarity/spacytextblob"
     objectivity_openai_gpt3_5_v1 = "objectivity/openai/gpt-3.5-v1"
     objectivity_spacytextblob = "objectivity/spacytextblob"
+    bias_openai_gpt3_5_v0 = "bias/openai/gpt-3.5-v0"
     bias_openai_gpt3_5_v1 = "bias/openai/gpt-3.5-v1"
+    bias_openai_gpt3_5_v2 = "bias/openai/gpt-3.5-v2"
     bias_d4data = "bias/d4data"
 
 
@@ -42,6 +44,7 @@ class Config(BaseModel):
 class ModelScore(TypedDict):
     raw: float
     scaled: float
+    details: Any
 
 
 class ContentQuality(BaseModel):
@@ -49,8 +52,13 @@ class ContentQuality(BaseModel):
     model_scores: Dict[str, ModelScore]
 
 
+class TextAnalyzerResponse(BaseModel):
+    score: float
+    details: Any = None
+
+
 class TextAnalyzer(Protocol):
-    def analyze_text(self, text: str, config: Dict[str, Any]) -> float:
+    def analyze_text(self, text: str, config: Dict[str, Any]) -> TextAnalyzerResponse:
         """A TextAnalyzer protocol"""
         ...
 
@@ -62,9 +70,14 @@ def content_quality_score(
     model_scores = {}
     for model in config.models:
         if model.name in models:
-            model_score = models[model.name].analyze_text(text, model.config.model)
+            result = models[model.name].analyze_text(text, model.config.model)
+
+            result = TextAnalyzerResponse.model_validate(result)
+            model_score = result.score
             scaled_score = sigmoid(model_score, model.config.activation)
-            model_scores[model.name] = ModelScore(raw=model_score, scaled=scaled_score)
+            model_scores[model.name] = ModelScore(
+                raw=model_score, scaled=scaled_score, details=result.details
+            )
 
             score += model.config.weight * scaled_score
         else:
