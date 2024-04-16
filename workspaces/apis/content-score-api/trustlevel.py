@@ -9,7 +9,6 @@ from typing_extensions import TypedDict
 # should be in main.py because the content qulity score shouldn't know about the models
 # but this way pydantic can validate the model name
 class ModelType(str, Enum):
-    openai_gpt3_5_trustlevel_v1 = "openai/gpt-3.5-trustlevel-v1"
     polarity_openai_gpt3_5_v1 = "polarity/openai/gpt-3.5-v1"
     polarity_spacytextblob = "polarity/spacytextblob"
     objectivity_openai_gpt3_5_v1 = "objectivity/openai/gpt-3.5-v1"
@@ -18,6 +17,7 @@ class ModelType(str, Enum):
     bias_openai_gpt3_5_v1 = "bias/openai/gpt-3.5-v1"
     bias_openai_gpt3_5_v2 = "bias/openai/gpt-3.5-v2"
     bias_d4data = "bias/d4data"
+    openai_gpt3_5_trustlevel_v1 = "openai/gpt-3.5-trustlevel-v1"
 
 
 class TrustLevelActivation(BaseModel):

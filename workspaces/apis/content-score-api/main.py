@@ -4,6 +4,7 @@ import models
 from fastapi import FastAPI
 from mangum import Mangum
 from pydantic import BaseModel
+from openai import OpenAI
 from typing import Dict, Any
 
 
@@ -25,11 +26,14 @@ class Response(BaseModel):
     metadata: Metadata = None
 
 
+client = OpenAI()
+
+
 # TODO: initialize OpenAI client and pass it to the models
 modelsDict = {
-    tl.ModelType.polarity_openai_gpt3_5_v1: models.PolarityOpenAIGPT35V1(),
-    tl.ModelType.objectivity_openai_gpt3_5_v1: models.ObjectivityOpenAIGPT35V1(),
-    tl.ModelType.bias_openai_gpt3_5_v0: models.BiasOpenAIGPT35V0(),
+    tl.ModelType.polarity_openai_gpt3_5_v1: models.PolarityOpenAIGPT35V1(client),
+    tl.ModelType.objectivity_openai_gpt3_5_v1: models.ObjectivityOpenAIGPT35V1(client),
+    tl.ModelType.bias_openai_gpt3_5_v0: models.BiasOpenAIGPT35V0(client),
     tl.ModelType.bias_openai_gpt3_5_v1: models.BiasOpenAIGPT35V1(),
     tl.ModelType.bias_openai_gpt3_5_v2: models.BiasOpenAIGPT35V2(),
 }

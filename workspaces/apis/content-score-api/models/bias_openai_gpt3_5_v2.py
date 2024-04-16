@@ -27,28 +27,27 @@ class BiasResponse(BaseModel):
         return field
 
 
-model = ChatOpenAI(temperature=0)
-
-prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            "You will be provided with text delimited by triple quotes for which you determine the bias score",
-        ),
-        ("user", "{input}"),
-    ]
-)
-
-parser = PydanticOutputFunctionsParser(pydantic_schema=BiasResponse)
-
-
-openai_functions = [convert_pydantic_to_openai_function(BiasResponse)]
-chain = prompt | model.bind(functions=openai_functions) | parser
-
-
 class BiasOpenAIGPT35V2:
+    def __init__(self):
+        model = ChatOpenAI(temperature=0)
+
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    "You will be provided with text delimited by triple quotes for which you determine the bias score",
+                ),
+                ("user", "{input}"),
+            ]
+        )
+
+        parser = PydanticOutputFunctionsParser(pydantic_schema=BiasResponse)
+
+        openai_functions = [convert_pydantic_to_openai_function(BiasResponse)]
+        self.chain = prompt | model.bind(functions=openai_functions) | parser
+
     def analyze_text(self, text: str, config: Dict[str, Any]) -> Dict[str, Any]:
-        result: BiasResponse = chain.invoke({"input": f'"""{text}"""'})
+        result: BiasResponse = self.chain.invoke({"input": f'"""{text}"""'})
 
         return {
             "score": result.bias_score,
