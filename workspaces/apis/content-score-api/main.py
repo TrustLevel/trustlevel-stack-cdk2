@@ -1,14 +1,38 @@
-import trustlevel as tl
+import os
 import models
+import logging
+import trustlevel as tl
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 from pydantic import BaseModel
 from openai import OpenAI
 from typing import Dict, Any
 
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+logger.info("Starting content-score-api")
+
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "[http://localhost:8080]")
+
 app = FastAPI()
+
+
+# remove the brackets from the string
+origins = ALLOWED_ORIGINS[1:-1].split(",")
+
+logger.info("Add CORS middleware with origins: %s", origins)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins="*",
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 
 class Request(BaseModel):
@@ -36,6 +60,7 @@ modelsDict = {
     tl.ModelType.bias_openai_gpt3_5_v0: models.BiasOpenAIGPT35V0(client),
     tl.ModelType.bias_openai_gpt3_5_v1: models.BiasOpenAIGPT35V1(),
     tl.ModelType.bias_openai_gpt3_5_v2: models.BiasOpenAIGPT35V2(),
+    tl.ModelType.trustlevel_openai_gpt3_5_v1: models.TrustLevelOpenAIGPT35V1(),
 }
 
 defaultModel = tl.Model(
@@ -47,9 +72,8 @@ defaultModel = tl.Model(
 )
 
 
-@app.post("/")
+@app.post("/trustlevels")
 async def root(request: Request):
-    print("request.config", request.config)
     config = tl.Config(models=[])
     if request.config is None:
         config.models.append(defaultModel)
@@ -66,4 +90,4 @@ async def root(request: Request):
 
 
 # This is the entry point for AWS Lambda
-handler = Mangum(app, lifespan="off")
+handler = Mangum(app, lifespan="off", api_gateway_base_path="/v1")

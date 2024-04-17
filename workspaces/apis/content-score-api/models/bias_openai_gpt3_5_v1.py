@@ -1,9 +1,13 @@
+import logging
+
 from typing import Dict, Any
 
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.pydantic_v1 import BaseModel, Field, validator
 from langchain_openai import ChatOpenAI
+
+logger = logging.getLogger(__name__)
 
 
 class BiasResponse(BaseModel):
@@ -39,7 +43,7 @@ class BiasOpenAIGPT35V1:
     def analyze_text(self, text: str, config: Dict[str, Any]) -> Dict[str, Any]:
         response = self.__chain.invoke({"input": text})
 
-        print("V1 RESULT", response)
+        logger.info("response: %s", response)
 
         return {
             "score": response["bias_score"],

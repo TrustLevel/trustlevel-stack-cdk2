@@ -46,6 +46,7 @@
         <label for="endpoint">Choose environment:</label>
         <select id="endpoint">
             <option value="">Select an option</option>
+            <option value="http://localhost:8000/trustlevels">local</option>
             <option value="https://2q2ffhhelb.execute-api.eu-west-1.amazonaws.com/v1/trustlevels">development</option>
             <option value="https://powr86cuh9.execute-api.eu-west-1.amazonaws.com/v1/trustlevels">production</option>
         </select>
@@ -74,8 +75,18 @@
                             properties: {
                                 name: {
                                     type: "string",
-                                    enum: ["openai/gpt-3.5-trustlevel-v1",  "polarity/openai/gpt-3.5-v1", "polarity/spacytextblob", "objectivity/openai/gpt-3.5-v1", "objectivity/spacytextblob", "bias/openai/gpt-3.5-v1", "bias/d4data"],
-                                    default: "openai/gpt-3.5-trustlevel-v1",
+                                    enum: [
+                                        "trustlevel/openai/gpt-3.5-v1",
+                                        "polarity/openai/gpt-3.5-v1",
+                                        // "polarity/spacytextblob",
+                                        "objectivity/openai/gpt-3.5-v1",
+                                        // "objectivity/spacytextblob",
+                                        "bias/openai/gpt-3.5-v0",
+                                        "bias/openai/gpt-3.5-v1",
+                                        "bias/openai/gpt-3.5-v2",
+                                        // "bias/d4data"
+                                    ],
+                                    default: "trustlevel/openai/gpt-3.5-v1",
                                 },
                                 config: {
                                     type: "object",
@@ -92,7 +103,7 @@
                                             type: "object",
                                             properties: {
                                                 temperatur: {
-                                                    default: 1.0,
+                                                    default: 0.0,
                                                     step: 0.01,
                                                     format: "number",
                                                 }
@@ -177,59 +188,43 @@
             type: 'line',
             data: {
                 labels: [],
-                datasets: [
-                    {
-                        label: 'Bias',
-                        data: [],
-                        borderColor: 'blue',
-                        fill: false,
-                    },
-                    {
-                        label: 'Objectivity',
-                        data: [],
-                        borderColor: 'red',
-                        fill: false,
-                    },
-                    {
-                        label: 'Polarity',
-                        data: [],
-                        borderColor: 'green',
-                        fill: false,
-                    },
-                ]
+                datasets: []
             },
             options: {
                 scales: {
-                    xAxes: [{
+                    x: {
+                        type: 'linear',
                         display: true,
-                        scaleLabel: {
+                        title: {
                             display: true,
-                            labelString: 'X-axis'
-                        }
-                    }],
-                    yAxes: [{
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Y-axis'
+                            text: 'input'
                         },
+                        suggestedMin: -1,
+                        suggestedMax: 1,
                         ticks: {
-                            beginAtZero: true,
-                            min: 0,
-                            max: 1
+                            stepSize: 0.1,
                         }
-                    }]
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'output'
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 1
+                    }
                 }
             }
         };
 
         const myChart = new Chart(ctx, chartConfig);
+        const colors = [];
 
         function updateChart(data) {
 
             // Extract model config from JSON data
             const models = data.models
-            console.log(myChart.data.datasets);
 
             // Clear existing chart data (optional)
             myChart.data.datasets = [];
@@ -238,12 +233,18 @@
             const labels = [];
             const datasets = [];
 
+            // everytime a new model is added, a new color is generated
+            if (colors.length < models.length) {
+                colors.push(`hsl(${Math.random() * 360}, 100%, 50%)`);
+            }
+
             // initialize datasets
-            for (const model of models) {
+            for (const [index, model] of models.entries()) {
                 datasets.push({
                     label: model.name,
                     data: [],
-                    borderColor: 'blue',
+                    borderColor: colors[index],
+                    
                     fill: false,
                 });
             }
@@ -259,6 +260,7 @@
 
             myChart.data.labels = labels;
             myChart.data.datasets = datasets;
+            myChart.update();
         }
 
         editor.on('change', () => {

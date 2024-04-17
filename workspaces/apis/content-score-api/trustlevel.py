@@ -10,14 +10,14 @@ from typing_extensions import TypedDict
 # but this way pydantic can validate the model name
 class ModelType(str, Enum):
     polarity_openai_gpt3_5_v1 = "polarity/openai/gpt-3.5-v1"
-    polarity_spacytextblob = "polarity/spacytextblob"
+    # polarity_spacytextblob = "polarity/spacytextblob"
     objectivity_openai_gpt3_5_v1 = "objectivity/openai/gpt-3.5-v1"
-    objectivity_spacytextblob = "objectivity/spacytextblob"
+    # objectivity_spacytextblob = "objectivity/spacytextblob"
     bias_openai_gpt3_5_v0 = "bias/openai/gpt-3.5-v0"
     bias_openai_gpt3_5_v1 = "bias/openai/gpt-3.5-v1"
     bias_openai_gpt3_5_v2 = "bias/openai/gpt-3.5-v2"
-    bias_d4data = "bias/d4data"
-    openai_gpt3_5_trustlevel_v1 = "openai/gpt-3.5-trustlevel-v1"
+    # bias_d4data = "bias/d4data"
+    trustlevel_openai_gpt3_5_v1 = "trustlevel/openai/gpt-3.5-v1"
 
 
 class TrustLevelActivation(BaseModel):
