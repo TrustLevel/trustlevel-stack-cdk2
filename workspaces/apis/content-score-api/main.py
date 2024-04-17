@@ -61,6 +61,7 @@ modelsDict = {
     tl.ModelType.bias_openai_gpt3_5_v1: models.BiasOpenAIGPT35V1(),
     tl.ModelType.bias_openai_gpt3_5_v2: models.BiasOpenAIGPT35V2(),
     tl.ModelType.trustlevel_openai_gpt3_5_v1: models.TrustLevelOpenAIGPT35V1(),
+    tl.ModelType.trustlevel_openai_gpt3_5_v2: models.TrustLevelOpenAIGPT35V2(),
 }
 
 defaultModel = tl.Model(

@@ -85,7 +85,11 @@ class TrustLevelOpenAIGPT35V1:
 
         logger.info("result: %s", result)
         return {
-            "score": (result.language_sore + result.source_and_facts + result.balance)
+            "score": (
+                (result.language_sore * self.__weights["language_sore"])
+                + (result.source_and_facts * self.__weights["source_and_facts"])
+                + (result.balance * self.__weights["balance"])
+            )
             / 3.0,
             "details": result.dict(),
         }
