@@ -1,12 +1,14 @@
 from typing import Dict, Any
+import logging
 
-from langchain_community.utils.openai_functions import (
-    convert_pydantic_to_openai_function,
-)
+from langchain_core.utils.function_calling import convert_to_openai_function
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field, validator
 from langchain_openai import ChatOpenAI
 from langchain.output_parsers.openai_functions import PydanticOutputFunctionsParser
+
+
+logger = logging.getLogger(__name__)
 
 
 class BiasResponse(BaseModel):
@@ -43,12 +45,13 @@ class BiasOpenAIGPT35V2:
 
         parser = PydanticOutputFunctionsParser(pydantic_schema=BiasResponse)
 
-        openai_functions = [convert_pydantic_to_openai_function(BiasResponse)]
+        openai_functions = [convert_to_openai_function(BiasResponse)]
         self.chain = prompt | model.bind(functions=openai_functions) | parser
 
     def analyze_text(self, text: str, config: Dict[str, Any]) -> Dict[str, Any]:
         result: BiasResponse = self.chain.invoke({"input": f'"""{text}"""'})
 
+        logger.info("result: %s", result)
         return {
             "score": result.bias_score,
             "details": result.chain_of_thought,

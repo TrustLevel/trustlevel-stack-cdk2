@@ -1,10 +1,11 @@
-import {Stack, Duration, RemovalPolicy} from 'aws-cdk-lib';
-import {Construct} from 'constructs';
-import {Stage} from '../../../bin/stages';
-import {Architecture, AssetCode, Function, Runtime} from 'aws-cdk-lib/aws-lambda';
-import {StagedStackProps} from '../../../bin/stagedStackProps';
-import {SubnetType} from 'aws-cdk-lib/aws-ec2';
-import {AiVpc} from '../../vpcs/ai-vpc-stack';
+
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import { Stage } from '../../../bin/stages';
+import { Architecture, AssetCode, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { StagedStackProps } from '../../../bin/stagedStackProps';
+import { SubnetType } from 'aws-cdk-lib/aws-ec2';
+import { AiVpc } from '../../vpcs/ai-vpc-stack';
 import { PythonFunction } from '@aws-cdk/aws-lambda-python-alpha';
 
 export interface TrustlevelPostStackProps extends StagedStackProps {
@@ -17,7 +18,7 @@ export interface TrustlevelPostFunction {
   allowedOrigins: string[];
 }
 
-export class TrustlevelPostStack extends Stack {
+export class TrustlevelPostStack extends cdk.Stack {
   public readonly trustlevelPostFunction: TrustlevelPostFunction;
 
   constructor(scope: Construct, id: string, props: TrustlevelPostStackProps) {
@@ -29,28 +30,19 @@ export class TrustlevelPostStack extends Stack {
 
     const stage = Stage[props!.stage];
 
-    const pythonFunctionName = `${functionName}-python`
-    new PythonFunction(this, pythonFunctionName, {
-      functionName: pythonFunctionName,
+    // don't forget to create secret manually in Secrets Manager
+    const openaiApiKey = cdk.SecretValue.secretsManager(
+      `openai-api-key-${stage}`
+    );
+
+    const lambdaFunction = new PythonFunction(this, functionName, {
+      functionName: functionName,
       entry: '../../workspaces/apis/content-score-api',
       runtime: Runtime.PYTHON_3_11,
       architecture: Architecture.ARM_64,
+      timeout: cdk.Duration.seconds(120),
       index: 'main.py',
       handler: 'handler',
-    })
-
-    const lambdaFunction = new Function(this, functionName, {
-      functionName,
-      handler: 'index.handler',
-      timeout: Duration.seconds(120),
-      runtime: Runtime.NODEJS_18_X,
-      currentVersionOptions: {removalPolicy: RemovalPolicy.RETAIN},
-      code: AssetCode.fromAsset(
-        '../../workspaces/apis/trustlevel-api/dist/bundle',
-        {
-          exclude: ['**', '!index.js'],
-        }
-      ),
       vpc: props.aiVpc.vpc,
       securityGroups: [props.aiVpc.lambdaSecurityGroup],
       vpcSubnets: {
@@ -58,34 +50,12 @@ export class TrustlevelPostStack extends Stack {
       },
       environment: {
         ALLOWED_ORIGINS: JSON.stringify(allowedOrigins),
-        SPACYTEXTBLOB_URL: `http://spacytextblob-service-${stage}.spacytextblob-${stage}.local:5000`, // Use the actual Service Discovery DNS name
-        BIASD4DATA_URL: `http://biasDetect-service-${stage}.biasDetect-${stage}.local:5000`, // Use the actual Service Discovery DNS name
-        DEFAULT_WEIGHTS: JSON.stringify({
-          approach: 'individual',
-          polarity: {
-            model: 'spacytextblob',
-            weight: 1.0,
-            scaling: 1.0,
-            steepness: 5.0,
-            shift: 0.1,
-          },
-          objectivity: {
-            model: 'spacytextblob',
-            weight: 1.0,
-            scaling: 1.0,
-            steepness: 5.0,
-            shift: 0.1,
-          },
-          bias: {
-            model: 'openai/gpt-3.5-bias-v1',
-            weight: 1.0,
-            scaling: 1.0,
-            steepness: 5.0,
-            shift: 0.1,
-          },
-        })
+        DEFAULT_CONFIG: JSON.stringify({}),
+        // NOTE: replace with more secure method:
+        // https://docs.aws.amazon.com/systems-manager/latest/userguide/ps-integration-lambda-extensions.html#arm64
+        OPENAI_API_KEY: openaiApiKey.unsafeUnwrap(),
       },
-    });
+    })
 
     this.trustlevelPostFunction = {
       function: lambdaFunction,
