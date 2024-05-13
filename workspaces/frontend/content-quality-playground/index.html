@@ -31,6 +31,24 @@
             border-radius: 5px;
             font-family: monospace;
         }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #000;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
@@ -54,7 +72,7 @@
         <label for="token">API token:</label>
         <input type="password" id="token" name="token" placeholder="API token">
         <button id="submit">Analyze</button>
-    </br>
+        </br>
         <b id="bias_label">...</b>
         <div id="result">{}</div>
     
@@ -164,6 +182,8 @@
             if (customConfig.checked) {
                 body.config = editor.getValue();
             }
+
+            resultElement.innerHTML = '<div class="spinner"></div>';
 
             fetch(endpoint, {
                 method: 'POST',
