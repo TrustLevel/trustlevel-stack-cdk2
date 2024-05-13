@@ -16,6 +16,7 @@ class ModelType(str, Enum):
     bias_openai_gpt3_5_v0 = "bias/openai/gpt-3.5-v0"
     bias_openai_gpt3_5_v1 = "bias/openai/gpt-3.5-v1"
     bias_openai_gpt3_5_v2 = "bias/openai/gpt-3.5-v2"
+    bias_openai_gpt4_v1 = "bias/openai/gpt-4-v1"
     # bias_d4data = "bias/d4data"
     trustlevel_openai_gpt3_5_v1 = "trustlevel/openai/gpt-3.5-v1"
     trustlevel_openai_gpt3_5_v2 = "trustlevel/openai/gpt-3.5-v2"
