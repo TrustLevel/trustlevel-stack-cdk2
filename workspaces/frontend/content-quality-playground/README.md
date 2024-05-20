@@ -1,6 +1,8 @@
 # Content Quality Playground
 A simple UI to test different weights used to calculate the content quality score.
 
+
+
 # Run Locally
 1. Navigate to folder `cd workspaces/frontend/content-quality-playground`
 1. Start Webserver
