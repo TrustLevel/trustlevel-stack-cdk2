@@ -10,6 +10,7 @@ docker build -t snet-cli .
 docker run --name snet-cli -d -v $(pwd)/.snet:/root/.snet \
     -v $(pwd)/../snetd/configs/dev/data:/data \
     -v $(pwd)/../snetd/configs/dev/src:/app/src \
+    -v $(pwd)/../grpc-service/src/spec:/app/spec \
     --entrypoint "" \
     snet-cli tail -f /dev/null
 
@@ -17,7 +18,7 @@ docker run --name snet-cli -d -v $(pwd)/.snet:/root/.snet \
 docker exec snet-cli snet identity list
 
 # Create consumer identity
-docker exec snet-cli snet identity create consumer-identity-2 key --private-key $(op read "op://Private/MetaMask Wallet/Wallet/private key") --network goerli
+docker exec snet-cli snet identity create consumer-identity-2 key --private-key $(op read "op://Private/MetaMask Wallet/Wallet/private key") --network sepolia
 
 # Check identity balance
 docker exec snet-cli snet account balance
@@ -29,7 +30,7 @@ docker exec snet-cli snet organization info trustlevel-aws-test
 docker exec -it snet-cli snet channel open-init trustlevel-aws-test default_groups 1.0 +200
 
 # Execute service call
-docker exec -it snet-cli snet client call trustlevel-aws-test trustlevel-aws-service-test-5 default_groups determineTrustLevel '{"query":"Hello World"}'
+docker exec -it snet-cli snet client call trustlevel-aws-test-id trustlevel-aws-service default_groups determineTrustLevel '{"query":"Hello World"}'
 
 # Close payment channel - only possible if the channel has been expired
 docker exec -it snet-cli snet channel claim-timeout-all
