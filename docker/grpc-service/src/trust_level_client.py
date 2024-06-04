@@ -7,15 +7,7 @@ stage_api_key = os.environ['STAGE_API_KEY']
 
 def calculate_trust_level(input_string):
     """Fetches the trust level from a predefined URL."""
-    
-    url = f"{stage_url}/trustlevels/"
-    headers = {
-        'Content-Type': 'application/json',
-        'x-api-key': stage_api_key
-    }
-    data = {
-        'text': input_string
-    }
+    url = f"{stage_url}/trustlevels"
 
     try:
         response = requests.post(url, headers=headers, data=json.dumps(data))
