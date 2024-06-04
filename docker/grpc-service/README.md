@@ -15,6 +15,15 @@ docker run --name trustlevel-grpc-server -p 7077:7077 -e STAGE_URL=https://2q2ff
 docker exec -it trustlevel-grpc-server bash
 # execute test client
 python client.py --host localhost --port 7077
+
+
+#
+# To start the container and mount the local source code
+#
+docker run --rm --name trustlevel-grpc-server -p 7077:7077 -e STAGE_URL=https://2q2ffhhelb.execute-api.eu-west-1.amazonaws.com/v1 -e STAGE_API_KEY=<dev-stage-api-key> -v $(PWD)/src/:/usr/src/app -it trustlevel-grpc-server /bin/bash
+
+# and then manually start the server
+python server.py
 ```
 
 ## Repository creation
