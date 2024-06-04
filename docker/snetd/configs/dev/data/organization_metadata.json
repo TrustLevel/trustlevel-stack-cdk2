@@ -1,6 +1,6 @@
 {
-    "org_name": "trustlevel-aws-test",
-    "org_id": "trustlevel-aws-test",
+    "org_name": "trustlevel-aws-test-org",
+    "org_id": "trustlevel-aws-test-id",
     "org_type": "individual",
     "description": {
         "description": "Trustlevel long description",
@@ -12,9 +12,9 @@
     "groups": [
         {
             "group_name": "default_groups",
-            "group_id": "1sYK43pGZOn5XyIJO8eu/TmcQzJ6q8RxfieNLGwI2Tc=",
+            "group_id": "whv8I8CHd58wrZNoosYLcV56ui8xNYEDzyQMOk4JosI=",
             "payment": {
-                "payment_address": "0x007692276fe8d9941FF9bB4f2CfE0047dD9EB406",
+                "payment_address": "0xE8b3BCA6CF734D24037C716cD57f64637FC6F12C",
                 "payment_expiration_threshold": 100,
                 "payment_channel_storage_type": "etcd",
                 "payment_channel_storage_client": {

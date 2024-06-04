@@ -1,10 +1,10 @@
 {
     "version": 1,
-    "display_name": "trustlevel-aws-service-test-5",
+    "display_name": "trustlevel-aws-test-id",
     "encoding": "proto",
     "service_type": "grpc",
-    "model_ipfs_hash": "QmZQ4APBbVFxBRZt4DKn3oXD1cjwxFbDC1eNgtadPLqQNB",
-    "mpe_address": "0x6245F856EFFBDB3ED6a3c64385b27A78B42F65e1",
+    "model_ipfs_hash": "QmW11r8RyP8aUWzyWViVxNvB1RNxko156S9NVKwuQ5DX7d",
+    "mpe_address": "0x7E0aF8988DF45B824b2E0e0A87c6196897744970",
     "groups": [
         {
             "group_name": "default_groups",
@@ -18,7 +18,7 @@
                     "default": true
                 }
             ],
-            "group_id": "1sYK43pGZOn5XyIJO8eu/TmcQzJ6q8RxfieNLGwI2Tc="
+            "group_id": "whv8I8CHd58wrZNoosYLcV56ui8xNYEDzyQMOk4JosI="
         }
     ],
     "assets": {},
