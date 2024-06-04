@@ -19,7 +19,7 @@ COPY start.sh /app/
 RUN chmod +x /app/start.sh
 
 # Download the SNET Daemon binary and change permissions
-RUN wget --progress=dot:giga "https://drive.google.com/u/0/uc?id=1jbme-TD_HVOlyvkdcT_B0iOOzUpM9c3r&export=download" -O snetd && \
+RUN wget --progress=dot:giga "https://github.com/singnet/snet-daemon/releases/download/v5.1.3/snetd-linux-amd64-v5.1.3" -O snetd && \
     chmod +x snetd
 
 # Set the command to run the startup script
