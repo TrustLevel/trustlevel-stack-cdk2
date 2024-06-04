@@ -66,7 +66,7 @@ modelsDict = {
 }
 
 defaultModel = tl.Model(
-    name=tl.ModelType.bias_openai_gpt3_5_v1,
+    name=tl.ModelType.bias_openai_gpt4_v1,
     config=tl.TrustLevelConfig(
         weight=1.0,
         activation=tl.TrustLevelActivation(scaling=1.0, steepness=5.0, shift=0.1),
@@ -76,6 +76,7 @@ defaultModel = tl.Model(
 
 @app.post("/trustlevels")
 async def root(request: Request):
+    logging.info(f"Received request: {request.text}")
     config = tl.Config(models=[])
     if request.config is None:
         config.models.append(defaultModel)
