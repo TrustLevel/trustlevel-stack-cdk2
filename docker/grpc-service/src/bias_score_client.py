@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(level=LOGLEVEL)
 
 
-def calculate_trust_level(input_string):
+def determine_bias_score(input_string):
     """Fetches the trust level from a predefined URL."""
 
     url = f"{stage_url}/trustlevels"
@@ -25,7 +25,10 @@ def calculate_trust_level(input_string):
         logger.debug(f"Received response: {response}")
 
         # Extract the desired field from the JSON response
-        return response.json().get("trustlevel", 0)
+        return (
+            response.json().get("trustlevel", 0),
+            response.json().get("explanations", []),
+        )
     except requests.RequestException as e:
         print(f"An error occurred: {e}")
         return 0

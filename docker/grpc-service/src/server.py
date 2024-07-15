@@ -14,9 +14,9 @@ LOGLEVEL = os.environ.get("LOGLEVEL", "INFO").upper()
 logger = logging.getLogger(__name__)
 logger.setLevel(level=LOGLEVEL)
 
-# Assuming calculate_trust_level is in the same directory
-from trust_level_client import (
-    calculate_trust_level,
+# Assuming determine_bias_score is in the same directory
+from bias_score_client import (
+    determine_bias_score,
 )  # Replace with the correct module name
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
@@ -26,15 +26,17 @@ class TrustlevelService(trustlevel_pb2_grpc.ServiceDefinitionServicer):
     def determineTrustLevel(self, request, context):
         logging.info(f"Received request: {request}")
         input_string = request.input_string
-        # Use the calculate_trust_level function
+        # Use the determine_bias_score function
         try:
-            trust_level = calculate_trust_level(input_string)
+            bias_score, explanations = determine_bias_score(input_string)
             logging.info(
-                f"Calculated trust level: {trust_level} for input: {input_string}"
+                f"Determined bias score: {bias_score} for input: {input_string}"
             )
-            return trustlevel_pb2.Output(trust_level=trust_level)
+            return trustlevel_pb2.BiasOutput(
+                score=bias_score, explanations=explanations
+            )
         except Exception as e:
-            logging.error(f"Error in calculate_trust_level: {e}")
+            logging.error(f"Error in determine_bias_score: {e}")
             raise grpc.RpcError(grpc.StatusCode.INTERNAL, "Internal server error")
 
 

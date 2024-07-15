@@ -6,11 +6,11 @@ message Input {
     string input_string = 1;
 }
 
-message Output {
-    double trust_level = 1;
+message BiasOutput {
+    double score = 1;
+    repeated string explanations = 2;
 }
 
 service ServiceDefinition {
-    rpc determineTrustLevel(Input) returns (Output) {}
+    rpc determineBias(Input) returns (BiasOutput) {}
 }
-
