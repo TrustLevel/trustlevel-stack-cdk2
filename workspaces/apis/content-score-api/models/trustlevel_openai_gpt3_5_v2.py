@@ -235,6 +235,7 @@ class TrustLevelOpenAIGPT35V2:
                 * self.__weights["headlines_subheadings"]["sensationalism"]
             )
         ) / 2.0
+        logger.warning("this model does not yet support explanations")
         return {
             "score": (
                 (objectivity_score * self.__weights["objectivity"]["weight"])
@@ -246,4 +247,5 @@ class TrustLevelOpenAIGPT35V2:
                 )
             ),
             "details": result.dict(),
+            "explanations": [],
         }

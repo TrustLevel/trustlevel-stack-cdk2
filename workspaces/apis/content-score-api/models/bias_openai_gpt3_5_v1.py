@@ -44,8 +44,9 @@ class BiasOpenAIGPT35V1:
         response = self.__chain.invoke({"input": text})
 
         logger.info("response: %s", response)
-
+        logger.warning("this model does not yet support explanations")
         return {
             "score": response["bias_score"],
             "details": response["chain_of_thought"],
+            "explanations": [],
         }

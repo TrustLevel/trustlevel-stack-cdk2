@@ -23,7 +23,7 @@ class BiasScore(IndexableBaseModel):
     )
 
     analysis: List[str] = Field(
-        description="A few bullet points of catchwords summarizing the bias analysis"
+        description="A few bullet points summarizing the bias analysis"
     )
 
     @validator("bias")
@@ -91,7 +91,7 @@ class BiasOpenAIGPT4FewShotV1:
         prompt = FewShotPromptTemplate(
             examples=self.examples,
             example_prompt=example_prompt,
-            suffix="How would you rate this text: {input}",
+            suffix="How would you rate the bias of this text: {input}",
             input_variables=["input"],
         )
 
@@ -108,4 +108,5 @@ class BiasOpenAIGPT4FewShotV1:
         return {
             "score": 2 * result[0].bias - 1,
             "details": dict(result[0]),
+            "explanations": result[0].analysis,
         }

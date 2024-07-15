@@ -34,4 +34,9 @@ class BiasOpenAIGPT35V0:
         response_dict = json.loads(response_json)
         bias_score = response_dict["bias_score"]
 
-        return {"score": bias_score, "details": response_dict["chain_of_thought"]}
+        logger.warning("this model does not yet support explanations")
+        return {
+            "score": bias_score,
+            "details": response_dict["chain_of_thought"],
+            "explanations": [],
+        }

@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 from pydantic import BaseModel
 from openai import OpenAI
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 
 logging.basicConfig(level=logging.INFO)
@@ -42,11 +42,12 @@ class Request(BaseModel):
 
 class Metadata(BaseModel):
     config: tl.Config
-    model_scores: Dict[str, Dict[str, Any]]
+    scores: Dict[str, Dict[str, Any]]
 
 
 class Response(BaseModel):
     trustlevel: float
+    explanations: List[str] = None
     metadata: Metadata = None
 
 
@@ -85,9 +86,9 @@ async def root(request: Request):
 
     result = tl.content_quality_score(request.text, config, modelsDict)
 
-    response = Response(trustlevel=result.score)
+    response = Response(trustlevel=result.score, explanations=result.explanations)
     if request.config is not None:
-        response.metadata = Metadata(config=config, model_scores=result.model_scores)
+        response.metadata = Metadata(config=config, scores=result.scores)
 
     return response
 

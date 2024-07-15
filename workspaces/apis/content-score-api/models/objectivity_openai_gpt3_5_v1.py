@@ -34,4 +34,9 @@ class ObjectivityOpenAIGPT35V1:
         response_dict = json.loads(response_json)
         objectivity = response_dict["objectivity"]
 
-        return {"score": objectivity, "details": response_dict["chain_of_thought"]}
+        logger.warning("this model does not yet support explanations")
+        return {
+            "score": objectivity,
+            "details": response_dict["chain_of_thought"],
+            "explanations": [],
+        }

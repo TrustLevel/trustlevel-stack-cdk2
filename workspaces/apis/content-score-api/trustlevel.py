@@ -51,12 +51,14 @@ class ModelScore(TypedDict):
 
 class ContentQuality(BaseModel):
     score: float
-    model_scores: Dict[str, ModelScore]
+    scores: Dict[str, ModelScore]
+    explanations: List[str] = None
 
 
 class TextAnalyzerResponse(BaseModel):
     score: float
     details: Any = None
+    explanations: List[str] = None
 
 
 class TextAnalyzer(Protocol):
@@ -69,7 +71,8 @@ def content_quality_score(
     text: str, config: Config, models: Dict[str, TextAnalyzer]
 ) -> ContentQuality:
     score = 0.0
-    model_scores = {}
+    scores = {}
+    explanations = []
     for model in config.models:
         if model.name in models:
             result = models[model.name].analyze_text(text, model.config.model)
@@ -77,14 +80,17 @@ def content_quality_score(
             result = TextAnalyzerResponse.model_validate(result)
             model_score = result.score
             scaled_score = sigmoid(model_score, model.config.activation)
-            model_scores[model.name] = ModelScore(
-                raw=model_score, scaled=scaled_score, details=result.details
+            scores[model.name] = ModelScore(
+                raw=model_score,
+                scaled=scaled_score,
+                details=result.details,
             )
-
+            if result.explanations:
+                explanations.extend(result.explanations)
             score += model.config.weight * scaled_score
         else:
             raise ValueError(f"Unknown model {model.name}")
-    return ContentQuality(score=score, model_scores=model_scores)
+    return ContentQuality(score=score, scores=scores, explanations=explanations)
 
 
 def sigmoid(x: float, config: TrustLevelActivation) -> float:

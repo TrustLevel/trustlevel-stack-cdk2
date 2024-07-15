@@ -84,6 +84,7 @@ class TrustLevelOpenAIGPT35V1:
         result: TrustLevelResponse = self.chain.invoke({"input": f'"""{text}"""'})
 
         logger.info("result: %s", result)
+        logger.warning("this model does not yet support explanations")
         return {
             "score": (
                 (result.language_sore * self.__weights["language_sore"])
@@ -92,4 +93,5 @@ class TrustLevelOpenAIGPT35V1:
             )
             / 3.0,
             "details": result.dict(),
+            "explanations": [],
         }
