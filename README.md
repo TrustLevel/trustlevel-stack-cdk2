@@ -94,3 +94,34 @@ snet channel open-init <org-id> default_groups 10.0 +2days
 # (example service-id = trustlevel-aws-service-test-4)
 snet client call <org-id> <service-id> default_groups determineTrustLevel '{"input_string":"Witnesses and some local journalists say that at least four Israeli missiles struck three buildings inside the Jabalia refugee camp last night. The Hamas-run health ministry in Gaza says 110 people were killed"}'
 ```
+
+## Mainnet
+
+```bash
+# Make sure you have a valid identity for mainnet
+snet identity create <IDENTITY> key --private-key <PVT-KEY> --network mainnet
+# for example:
+snet identity create mainnet-consumer key --private-key $(cat key) --network mainnet
+
+# Setup free signer address
+# Mainnet: 0x3Bb9b2499c283cec176e7C707Ecb495B7a961ebf (See https://dev.singularitynet.io/docs/ai-developers/service-setup-snet-cli/#publishing-service)
+
+
+# switch to the identity you want to use
+snet identity <IDENTITY> # for example: snet identity mainnet-consumer
+
+# Get information of organization and service
+snet organization info fafe2dc448cd4e0bb581d2c29020282f
+snet service print-metadata fafe2dc448cd4e0bb581d2c29020282f trustlevel-bias-service
+
+# Create a deposit for service executions
+snet account deposit 0.000001
+
+# Create a channel for service executions (example org-id = trustlevel-aws-test)
+snet channel open-init fafe2dc448cd4e0bb581d2c29020282f default_groups 0.000001 +7days
+snet channel open-init fafe2dc448cd4e0bb581d2c29020282f default_groups 0.000001 +2days
+
+# Execute the example service
+# (example org-id = trustlevel-aws-test)
+
+```

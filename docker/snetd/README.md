@@ -44,5 +44,9 @@ AWS_PROFILE=trustlevel aws s3 cp ./configs/prd/snetd.config.json s3://prd-snetd-
 ## Restart
 
 ```bash
+# development
 AWS_PROFILE=trustlevel aws ecs update-service --cluster dev-SnetdCluster --service dev-SnetdFargateService --force-new-deployment --region eu-west-1 
+
+# production
+AWS_PROFILE=trustlevel aws ecs update-service --cluster prd-SnetdCluster --service prd-SnetdFargateService --force-new-deployment --region eu-west-1 
 ```
