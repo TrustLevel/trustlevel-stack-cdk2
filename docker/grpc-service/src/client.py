@@ -14,10 +14,11 @@ def run(host, port):
         channel = grpc.insecure_channel(f"{host}:{port}")
         stub = trustlevel_pb2_grpc.ServiceDefinitionStub(channel)
         logging.info(f"Connecting to server at {host}:{port}")
-        response = stub.determineTrustLevel(
+        response = stub.determineBias(
             trustlevel_pb2.Input(input_string="This is some factual news article")
         )
-        logging.info(f"Received trust level: {response.trust_level}")
+        logging.info(f"Received bias score: {response.score}")
+        logging.info(f"Received bias explanations: {response.explanations}")
     except grpc.RpcError as e:
         logging.error(f"RPC failed: {e}")
     finally:

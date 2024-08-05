@@ -23,7 +23,7 @@ _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 
 class TrustlevelService(trustlevel_pb2_grpc.ServiceDefinitionServicer):
-    def determineTrustLevel(self, request, context):
+    def determineBias(self, request, context):
         logging.info(f"Received request: {request}")
         input_string = request.input_string
         # Use the determine_bias_score function
