@@ -1,31 +1,64 @@
 {
     "version": 1,
-    "display_name": "trustlevel-cqs-service",
+    "display_name": "TrustLevel News Bias Detector",
     "encoding": "proto",
     "service_type": "grpc",
-    "model_ipfs_hash": "QmZQ4APBbVFxBRZt4DKn3oXD1cjwxFbDC1eNgtadPLqQNB",
+    "model_ipfs_hash": "QmSpGWnuLGhWtaTxwGiaaejp9PhmkVoTSuVUdRLdczKCVv",
     "mpe_address": "0x5e592F9b1d303183d963635f895f0f0C48284f4e",
     "groups": [
         {
-            "group_name": "default_groups",
-            "endpoints": [
-                "http://trust-level.com:443"
+            "free_calls": 3,
+            "free_call_signer_address": "0x3Bb9b2499c283cec176e7C707Ecb495B7a961ebf",
+            "daemon_addresses": [
+                "0x1099cdc225cb70c97e694f1a881526ee23995124"
             ],
             "pricing": [
                 {
+                    "default": true,
                     "price_model": "fixed_price",
-                    "price_in_cogs": 1000000,
-                    "default": true
+                    "price_in_cogs": 10000000
                 }
             ],
-            "group_id": "UEa+rWu430w2Cv8mg1SwUfdnZEgBvyZvuY4YsYoNcQE="
+            "endpoints": [
+                "https://trust-level.com:443"
+            ],
+            "group_id": "9CYUEQZfIyHhmZ/o9AhK3jdeKUgBZJ/UmVGvx2nY8wc=",
+            "group_name": "default_group"
         }
     ],
-    "assets": {},
-    "media": [],
-    "tags": [],
     "service_description": {
-        "description": "Content_Quality_Score",
-        "url": "https://www.trustlevel.io/"
-    }
+        "url": "https://docs.trustlevel.io/ai-services/news-bias-detector",
+        "short_description": "This LLM-based service recognizes the bias of news articles and presents a bias score from 0 (extremely biased) to 1 (not biased) for each submitted article.",
+        "description": "Welcome to the TrustLevel News Bias Detector.\n\nNews articles often suffer from bias and manipulation, making it hard to find objective reporting. This service is designed to detect bias in news articles and ensure that you can rely on more credible information. \n\nEach submitted news article is analyzed and given a bias score from 0 (extremely biased) to 1 (non-biased). In addition, a brief explanation of how the score is determined is shown.\n\nThe following reference values can be used to interpret the output values:\n\n- 0.0 - 0.4 = extremely biased\n- 0.4 - 0.6 = highly biased\n- 0.7 - 0.8 = moderately biased\n- 0.9 - 1.0 = not biased\n\nFor a detailed description and documentation of the service, please visit the following website: https://docs.trustlevel.io/ai-services/news-bias-detector"
+    },
+    "media": [
+        {
+            "order": 1,
+            "url": "https://marketplace-registry-assets.s3.us-east-1.amazonaws.com/fafe2dc448cd4e0bb581d2c29020282f/services/fa8492bef9d34974b7cc123d6431386c/assets/20240710112729_asset.png",
+            "file_type": "image",
+            "asset_type": "hero_image",
+            "alt_text": ""
+        }
+    ],
+    "contributors": [
+        {
+            "name": "Dominik Tilman",
+            "email_id": ""
+        },
+        {
+            "name": "Roman Preuss",
+            "email_id": ""
+        },
+        {
+            "name": "Josch Rossa",
+            "email_id": ""
+        },
+        {
+            "name": "Alex Ramalho",
+            "email_id": ""
+        }
+    ],
+    "tags": [
+        "bias"
+    ]
 }

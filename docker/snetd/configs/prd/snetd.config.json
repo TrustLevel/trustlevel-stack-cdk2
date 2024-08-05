@@ -4,8 +4,8 @@
     "daemon_end_point": "0.0.0.0:7001",
     "daemon_group_name": "default_groups",
     "ipfs_end_point": "http://ipfs.singularitynet.io:80",
-    "organization_id": "trustlevel-org-id",
-    "service_id": "trustlevel-cqs-service",
+    "organization_id": "fafe2dc448cd4e0bb581d2c29020282f",
+    "service_id": "trustlevel-bias-service",
     "passthrough_enabled": true,
     "passthrough_endpoint": "http://trustlevel-grpc-service-prd.trustlevel-grpc-prd.local:7077",
     "payment_channel_storage_server": {

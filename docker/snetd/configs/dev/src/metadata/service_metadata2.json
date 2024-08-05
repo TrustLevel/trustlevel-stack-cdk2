@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "display_name": "trustlevel-aws-test-id",
+    "display_name": "trustlevel-aws-service-2",
     "encoding": "proto",
     "service_type": "grpc",
     "model_ipfs_hash": "QmNhN5Kukf5a1fK3RSfoC4TBtWv3i5GVxivERQcQ7QeeL6",
