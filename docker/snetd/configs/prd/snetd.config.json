@@ -2,7 +2,7 @@
     "blockchain_enabled": true,
     "blockchain_network_selected": "main",
     "daemon_end_point": "0.0.0.0:7001",
-    "daemon_group_name": "default_groups",
+    "daemon_group_name": "default_group",
     "ipfs_end_point": "http://ipfs.singularitynet.io:80",
     "organization_id": "fafe2dc448cd4e0bb581d2c29020282f",
     "service_id": "trustlevel-bias-service",
