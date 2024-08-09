@@ -25,12 +25,13 @@ import {SnetVpc} from '../vpcs/snet-vpc-stack';
 import {HostedZone, ARecord, RecordTarget} from 'aws-cdk-lib/aws-route53';
 import {LoadBalancerTarget} from 'aws-cdk-lib/aws-route53-targets';
 import {
-  ApplicationLoadBalancer,
-  ApplicationProtocol,
-  ApplicationProtocolVersion,
-  ApplicationTargetGroup,
+  NetworkLoadBalancer,
+  INetworkTargetGroup,
+  NetworkTargetGroup,
   TargetType,
+  AlpnPolicy,
   Protocol,
+  NetworkListenerAction,
 } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import {
   Certificate,
@@ -58,9 +59,9 @@ export class SnetdStack extends Stack {
     );
     this.addContainerToTaskDefinition(taskDefinition, stagePrefix, logGroup);
 
-    const alb = this.createApplicationLoadBalancer(props.snetVpc, stagePrefix);
-    const certificate = this.associateDomainWithALB(
-      alb,
+    const nlb = this.createNetworkLoadBalancer(props.snetVpc, stagePrefix);
+    const certificate = this.associateDomainWithNLB(
+      nlb,
       stagePrefix,
       props.stage
     );
@@ -70,7 +71,7 @@ export class SnetdStack extends Stack {
       taskDefinition,
       stagePrefix,
       props.snetVpc,
-      alb,
+      nlb,
       certificate
     );
   }
@@ -196,33 +197,18 @@ export class SnetdStack extends Stack {
     });
   }
 
-  private createApplicationLoadBalancer(
+  private createNetworkLoadBalancer(
     snetVpc: SnetVpc,
     stagePrefix: string
-  ): ApplicationLoadBalancer {
-    const albSecurityGroup = new SecurityGroup(
-      this,
-      `${stagePrefix}-AlbSecurityGroup`,
-      {
-        vpc: snetVpc.vpc,
-        allowAllOutbound: true,
-      }
-    );
+  ): NetworkLoadBalancer {
 
-    albSecurityGroup.addIngressRule(
-      Peer.anyIpv4(),
-      Port.tcp(443),
-      'Allow HTTPS traffic from anywhere'
-    );
-
-    const alb = new ApplicationLoadBalancer(this, `${stagePrefix}-SnetdALB`, {
+    const nlb = new NetworkLoadBalancer(this, `${stagePrefix}-SnetdNLB`, {
       vpc: snetVpc.vpc,
       internetFacing: true,
-      loadBalancerName: `${stagePrefix}-SnetdALB`,
-      securityGroup: albSecurityGroup,
+      loadBalancerName: `${stagePrefix}-SnetdNLB`,
     });
 
-    return alb;
+    return nlb;
   }
 
   private createFargateService(
@@ -230,7 +216,7 @@ export class SnetdStack extends Stack {
     taskDefinition: FargateTaskDefinition,
     stagePrefix: string,
     snetVpc: SnetVpc,
-    alb: ApplicationLoadBalancer,
+    nlb: NetworkLoadBalancer,
     certificate: Certificate
   ): void {
     const snetdSecurityGroup = new SecurityGroup(
@@ -262,42 +248,35 @@ export class SnetdStack extends Stack {
       }
     );
 
-    const httpsListener = alb.addListener(`${stagePrefix}-HttpsListener`, {
-      port: 443,
-      open: true,
-      protocol: ApplicationProtocol.HTTPS,
-      certificates: [certificate],
-    });
-
-    const targetGroup = new ApplicationTargetGroup(
+    const targetGroup: INetworkTargetGroup = new NetworkTargetGroup(
       this,
       `${stagePrefix}-SnetdTargetGroup`,
       {
         vpc: snetVpc.vpc,
         port: 7001,
-        protocol: ApplicationProtocol.HTTP, // For the target group protocol
+        protocol: Protocol.TCP, // For the target group protocol
         targetType: TargetType.IP,
-        protocolVersion: ApplicationProtocolVersion.GRPC,
         healthCheck: {
           enabled: true,
           interval: Duration.seconds(30),
-          path: '/grpc.health.v1.Health/Check', // Health check path
-          port: '7001', // Health check port
+          path: '/heartbeat', // Health check path
           protocol: Protocol.HTTP,
-          healthyGrpcCodes: '0', // Expected gRPC code for healthy response
+          healthyHttpCodes: '200', // Expected gRPC code for healthy response
         },
       }
     );
 
-    httpsListener.addTargetGroups(`${stagePrefix}-TargetGroup`, {
-      targetGroups: [targetGroup],
+    nlb.addListener(`${stagePrefix}-TLSListener`, {
+      port: 443,
+      certificates: [certificate],
+      alpnPolicy: AlpnPolicy.HTTP2_OPTIONAL,
+      defaultAction: NetworkListenerAction.forward([targetGroup]),
     });
-
-    service.attachToApplicationTargetGroup(targetGroup);
+    targetGroup.addTarget(service);
   }
 
-  private associateDomainWithALB(
-    alb: ApplicationLoadBalancer,
+  private associateDomainWithNLB(
+    nlb: NetworkLoadBalancer,
     stagePrefix: string,
     stage: Stage
   ): Certificate {
@@ -311,7 +290,7 @@ export class SnetdStack extends Stack {
     new ARecord(this, `${stagePrefix}-NLBAliasRecord`, {
       zone: hostedZone,
       recordName: recordName,
-      target: RecordTarget.fromAlias(new LoadBalancerTarget(alb)),
+      target: RecordTarget.fromAlias(new LoadBalancerTarget(nlb)),
     });
 
     return new Certificate(this, `${stagePrefix}-Certificate`, {

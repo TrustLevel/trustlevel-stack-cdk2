@@ -12,7 +12,7 @@
     "groups": [
         {
             "group_name": "default_groups",
-            "group_id": "UEa+rWu430w2Cv8mg1SwUfdnZEgBvyZvuY4YsYoNcQE=",
+            "group_id": "9CYUEQZfIyHhmZ/o9AhK3jdeKUgBZJ/UmVGvx2nY8wc=",
             "payment": {
                 "payment_address": "0x1099cdc225cB70C97E694f1A881526ee23995124",
                 "payment_expiration_threshold": 100,

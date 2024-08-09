@@ -151,7 +151,7 @@ export class TrustlevelGrpcStack extends Stack {
     snetVpc: SnetVpc,
     dnsNamespace: PrivateDnsNamespace
   ): void {
-    // Create a standard Fargate Service without an ALB
+    // Create a standard Fargate Service without an NLB
     const fargateService = new FargateService(
       this,
       `${stagePrefix}-TrustlevelGrpcFargateService`,
